@@ -45,3 +45,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'email', 'full_name', 'phone', 'role', 'is_active', 'created_at']
         read_only_fields = ['id', 'email', 'role', 'is_active', 'created_at']
+
+class ProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer for user profile with additional fields.
+    """
+    class Meta:
+        model = User
+        fields = ['avatar', 'birth_date', 'address']
