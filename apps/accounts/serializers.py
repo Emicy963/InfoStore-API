@@ -32,7 +32,16 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         """
         Create a new user instance.
         """
-        
+
         validated_data.pop('password_confirm')
         user = User.objects.create_user(**validated_data)
         return user
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer for user profile.
+    """
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'full_name', 'phone', 'role', 'is_active', 'created_at']
+        read_only_fields = ['id', 'email', 'role', 'is_active', 'created_at']
