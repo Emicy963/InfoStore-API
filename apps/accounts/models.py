@@ -30,3 +30,17 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    avatar = models.ImageField(_('avatar'), upload_to='avatars/', blank=True)
+    birth_date = models.DateField(_('address'), blank=True, null=True)
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('updated at'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Profile')
+        verbose_name_plural = _('Profiles')
+
+    def __str__(self):
+        return f'Profile of {self.user.email}'
