@@ -94,6 +94,20 @@ class UserProfileSerializer(serializers.ModelSerializer):
         """
         return obj.orders.count()
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for updating ser profile
+    """
+    class Meta:
+        model = User
+        fields = ['username', 'full_name', 'phone']
+
+    def validate_username(self, value):
+        user = self.instance
+        if user and User.objects.filter(username=value).exclude(id=user.id).exists():
+            raise serializers.ValidationError('Username is already in use.')
+        return value
+
 class ProfileSerializer(serializers.ModelSerializer):
     """
     Serializer for user profile with additional fields.
