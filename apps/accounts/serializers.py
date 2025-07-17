@@ -83,8 +83,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ['id', 'email', 'full_name', 'phone', 'role', 'is_active', 'created_at']
-        read_only_fields = ['id', 'email', 'role', 'is_active', 'created_at']
+        fields = ['id', 'email', 'username', 'full_name', 'phone', 
+            'role', 'is_active', 'created_at', 'updated_at',
+            'orders_count']
+        read_only_fields = ['id', 'email', 'role', 'is_active', 'created_at', 'updated_at']
+    
+    def get_orders_count(self, obj):
+        """
+        Retorna o número de pedidos do usuário
+        """
+        return obj.orders.count()
 
 class ProfileSerializer(serializers.ModelSerializer):
     """
