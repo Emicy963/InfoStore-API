@@ -17,7 +17,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'password_confirm']
+        fields = ['email', 'username', 'password', 'password_confirm']
+        extra_kwarks = {
+            'username': {'required': False},
+            'email': {'required': True},
+        }
 
     def validate(self, attrs):
         """
@@ -28,12 +32,22 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Passwords do not match.')
         return attrs
     
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError('Email is already in use.')
+        return value
+    
     def create(self, validated_data):
         """
         Create a new user instance.
         """
 
         validated_data.pop('password_confirm')
+        
+        # Create username if not provided
+        if not validated_data.get('username'):
+            validated_data['username'] = validated_data['email'].split('@')[0]
+
         user = User.objects.create_user(**validated_data)
         return user
 
