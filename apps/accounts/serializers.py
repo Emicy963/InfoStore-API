@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-from .models import User
+from .models import User, Profile
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -112,6 +112,19 @@ class ProfileSerializer(serializers.ModelSerializer):
     """
     Serializer for user profile with additional fields.
     """
+    avatar_url = serializers.SerializerMethodField()
+
     class Meta:
-        model = User
-        fields = ['avatar', 'birth_date', 'address']
+        model = Profile
+        fields = ['avatar', 'avatar_url', 'birth_date', 'address']
+
+    def get_avatar_url(self, obj):
+        """
+        Returns the URL of the user's avatar.
+        """
+        if obj.avatar:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.avatar.url)
+            return obj.avatar.url
+        return None
