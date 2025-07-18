@@ -128,3 +128,34 @@ class ProfileSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.avatar.url)
             return obj.avatar.url
         return None
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    """
+    Serializer detail for user (includ profile)
+    """
+    profile = ProfileSerializer(read_only=True)
+    orders_count = serializers.SerializerMethodField()
+    last_order_date = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'email', 'username', 'full_name', 'phone',
+            'role', 'is_active', 'created_at', 'updated_at',
+            'profile', 'orders_count', 'last_order_date'
+        ]
+        read_only_fieds = ['id', 'email', 'role', 'is_active', 
+            'created_at', 'updated_at']
+        
+        def get_orders_count(self, obj):
+            """
+            Returns the number of orders for the user.
+            """
+            return obj.orders.count()
+        
+        def get_last_order_date(self, obj):
+            """
+            Returns the date of the last order for the user.
+            """
+            last_order = obj.orders.order_by('-created_at').first()
+            return last_order.created_at if last_order else None
