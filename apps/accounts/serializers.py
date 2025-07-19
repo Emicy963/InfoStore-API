@@ -8,7 +8,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     """
     Serializer for user registration.
     """
-
     password = serializers.CharField(
         write_only=True,
         validators=[validate_password]
@@ -27,7 +26,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         """
         Validate thate the password and password confirmation match.
         """
-
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError('Passwords do not match.')
         return attrs
@@ -41,7 +39,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         """
         Create a new user instance.
         """
-
         validated_data.pop('password_confirm')
         
         # Create username if not provided
