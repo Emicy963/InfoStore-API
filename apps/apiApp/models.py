@@ -19,7 +19,7 @@ class Category(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
-    price = models.DecimalField(max_length=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     slug = models.SlugField()
     image = models.ImageField(upload_to='product_img', blank=True, null=True)
     category  = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True)
