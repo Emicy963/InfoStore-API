@@ -33,13 +33,9 @@ INSTALLED_APPS = [
 
     # Third party apps
     'rest_framework',
-    'rest_framework_simplejwt',
-    'corsheaders',
-    'django_filters',
-    'drf_spectacular',
 
-    # Local apps
-    'apps.accounts',
+    # Local Apps
+    'apps.apiApp',
 ]
 
 MIDDLEWARE = [
@@ -129,7 +125,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom user model
-AUTH_USER_MODEL = 'accounts.User'
+# AUTH_USER_MODEL = 'accounts.User'
 
 # Django REST Framework
 REST_FRAMEWORK = {
