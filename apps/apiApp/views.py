@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Product, Category
-from .serializers import ProducListSerializer, ProducDetailSerializer, CategorySerialiizer
+from .serializers import ProducListSerializer, ProducDetailSerializer, CategoryListSerialiizer, CategoryDetailSerialiizer
 
 @api_view(['GET'])
 def product_list(requesst):
@@ -19,5 +19,11 @@ def product_detail(request, slug):
 @api_view(['GET'])
 def category_list(request):
     categories = Category.objects.all()
-    serializer = CategorySerialiizer(categories, many=True)
+    serializer = CategoryListSerialiizer(categories, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def category_detail(request, slug):
+    category = Category.objects.get(slug=slug)
+    serializer = CategoryDetailSerialiizer(category)
     return Response(serializer.data)
