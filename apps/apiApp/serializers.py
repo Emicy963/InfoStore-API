@@ -6,6 +6,11 @@ class ProducListSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['id', 'name', 'slug', 'image', 'price']
 
+class ProducDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'slug', 'description', 'image', 'price']
+
 class CategorySerialiizer(serializers.ModelSerializer):
     products = ProducListSerializer(many=True, read_only=True)
     class Meta:
