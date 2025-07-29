@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Category, CartItem, Cart
+from .models import Product, Category, CartItem, Cart, Review
 
 class ProducListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,3 +55,8 @@ class CartStatSerializer(serializers.ModelSerializer):
         items = cart.cartitems.all()
         total = sum([item.quantity for item in items])
         return total
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'user', 'rating', 'comment', 'created_at', 'update_at']
