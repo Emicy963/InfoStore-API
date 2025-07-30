@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Product, Category, CartItem, Cart, Review
+from .models import Product, Category, CartItem, Cart, Review, Wishlist
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -68,3 +68,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['id', 'user', 'rating', 'comment', 'created_at', 'updated_at']
+
+class WishListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wishlist
+        fields = ['id', 'user', 'product', 'created_at']
