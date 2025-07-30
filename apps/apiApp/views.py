@@ -80,3 +80,16 @@ def add_review(request):
         )
     serializer = ReviewSerializer(review)
     return Response(serializer.data)
+
+@api_view(['PUT'])
+def update_review(request, pk):
+    review = Review.objects.get(id=pk)
+    rating = request.data.get('rating')
+    comment = request.data.get('comment')
+
+    review.rating = rating
+    review.comment = comment
+    review.save()
+
+    serializer = ReviewSerializer(review)
+    return Response(serializer.data)
