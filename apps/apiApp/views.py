@@ -93,3 +93,10 @@ def update_review(request, pk):
 
     serializer = ReviewSerializer(review)
     return Response(serializer.data)
+
+@api_view(['DELETE'])
+def delete_review(request, pk):
+    review = Review.objects.get(id=pk)
+    review.delete()
+
+    return Response('Review delete sucessfully', status=204)
