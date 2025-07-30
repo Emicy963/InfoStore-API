@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Product, Category, Cart, CartItem, Review
-from .serializers import ProducListSerializer, ProducDetailSerializer, CategoryListSerialiizer, CategoryDetailSerialiizer, CartSerializer, CartItemSerializer, ReviewSerializer
+from .models import Product, Category, Cart, CartItem, Review, Wishlist
+from .serializers import ProducListSerializer, ProducDetailSerializer, CategoryListSerialiizer, CategoryDetailSerialiizer, CartSerializer, CartItemSerializer, ReviewSerializer, WishListSerializer
 
 User = get_user_model()
 
@@ -100,3 +100,20 @@ def delete_review(request, pk):
     review.delete()
 
     return Response('Review delete sucessfully', status=204)
+
+@api_view(['POST'])
+def add_to_wishlist(request):
+    email = request.data.get('email')
+    product_id = request.data.get('product_id')
+
+    user = User.objects.get(email=email)
+    product = Product.objects.get(id=product_id)
+
+    wishlist = Wishlist.objects.filter(user=user, product=product)
+    if wishlist:
+        wishlist.delete()
+        return Response('Product removed from wishlist', status=204)
+    
+    now_wishlist = Wishlist.objects.create(user=user, product=product)
+    serializer = WishListSerializer(now_wishlist)
+    return Response(serializer.data)
