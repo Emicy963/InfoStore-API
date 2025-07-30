@@ -69,6 +69,9 @@ def add_review(request):
     product = Product.objects.get(id=product_id)
     user = User.objects.get(email=email)
 
+    if Review.objects.filter(product=product, user=user).exists():
+        return Response({"error": "You have already reviewed this product"}, status=400)
+
     review = Review.objects.create(
         product=product, 
         user=user, 
