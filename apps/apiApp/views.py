@@ -101,6 +101,13 @@ def delete_review(request, pk):
 
     return Response('Review delete sucessfully', status=204)
 
+@api_view(['DELETE'])
+def delete_cartitem(request, pk):
+    cartitem = CartItem.objects.get(id=pk)
+    cartitem.delete()
+
+    return Response('Cartitem delete sucessfully', status=204)
+
 @api_view(['POST'])
 def add_to_wishlist(request):
     email = request.data.get('email')
