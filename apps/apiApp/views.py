@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Product, Category, Cart, CartItem, Review, Wishlist
@@ -142,4 +143,17 @@ def add_to_wishlist(request):
 
     now_wishlist = Wishlist.objects.create(user=user, product=product)
     serializer = WishListSerializer(now_wishlist)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def product_search(request):
+    query = request.query_params.get('query')
+    if not query:
+        return Response({'error': 'No query provided'}, status=400)
+    
+    products = Product.objects.filter(Q(name_icontains=query) | 
+                                      Q(descriptio_icontains=query) | 
+                                      Q(category_name_icontains=query))
+    
+    serializer = ProducListSerializer(products, many=True)
     return Response(serializer.data)
