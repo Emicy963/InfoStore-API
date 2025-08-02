@@ -152,7 +152,7 @@ def product_search(request):
         return Response({'error': 'No query provided'}, status=400)
     
     products = Product.objects.filter(Q(name_icontains=query) | 
-                                      Q(descriptio_icontains=query) | 
+                                      Q(description_icontains=query) | 
                                       Q(category_name_icontains=query))
     
     serializer = ProducListSerializer(products, many=True)
