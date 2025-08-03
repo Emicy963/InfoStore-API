@@ -24,7 +24,7 @@ class ProducDetailSerializer(serializers.ModelSerializer):
 class CategoryListSerialiizer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ["id", "name", "image" "slug"]
+        fields = ["id", "name", "image", "slug"]
 
 
 class CategoryDetailSerialiizer(serializers.ModelSerializer):
