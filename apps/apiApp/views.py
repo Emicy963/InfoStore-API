@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import Product, Category, Cart, CartItem, Review, Wishlist
 from .serializers import (
     ProducListSerializer,
@@ -12,9 +13,13 @@ from .serializers import (
     CartItemSerializer,
     ReviewSerializer,
     WishListSerializer,
+    CustomTokenObtainPairSerializer,
 )
 
 User = get_user_model()
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 @api_view(["GET"])
