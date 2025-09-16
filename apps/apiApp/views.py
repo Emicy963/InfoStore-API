@@ -77,6 +77,19 @@ def logout(request):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_profile(request):
+    user = request.user
+    return Response(
+        {
+            "id": user.id,
+            "email": user.email,
+            "name": user.get_full_name() or user.username,
+        }
+    )
+
+
+@api_view(["GET"])
 def product_list(requesst):
     products = Product.objects.filter(featured=True)
     serializer = ProducListSerializer(products, many=True)
