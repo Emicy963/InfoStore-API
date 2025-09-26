@@ -90,6 +90,7 @@ def get_user_profile(request):
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def product_list(requesst):
     products = Product.objects.filter(featured=True)
     serializer = ProducListSerializer(products, many=True)
@@ -97,6 +98,7 @@ def product_list(requesst):
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def product_detail(request, slug):
     products = Product.objects.get(slug=slug)
     serializer = ProducDetailSerializer(products)
@@ -104,6 +106,7 @@ def product_detail(request, slug):
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def category_list(request):
     categories = Category.objects.all()
     serializer = CategoryListSerialiizer(categories, many=True)
@@ -111,6 +114,7 @@ def category_list(request):
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def category_detail(request, slug):
     category = Category.objects.get(slug=slug)
     serializer = CategoryDetailSerialiizer(category)
@@ -228,11 +232,12 @@ def add_to_wishlist(request):
     serializer = WishListSerializer(now_wishlist)
     return Response(serializer.data)
 
-@api_view(['GET'])
+@api_view(["GET"])
+@permission_classes([AllowAny])
 def product_search(request):
-    query = request.query_params.get('query')
+    query = request.query_params.get("query")
     if not query:
-        return Response({'error': 'No query provided'}, status=400)
+        return Response({"error": "No query provided"}, status=400)
     
     products = Product.objects.filter(Q(name__icontains=query) | 
                                       Q(description__icontains=query) | 
