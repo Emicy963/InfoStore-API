@@ -7,7 +7,7 @@ urlpatterns = [
     path("api/token/", views.CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/register/", views.register, name="register"),
-    path("logout/", views.logout, name="logout"),
+    path("api/logout/", views.logout, name="logout"),
     path("profile/", views.get_user_profile, name="user_profile"),
     # Product and Category
     path("product_list", views.product_list, name="product_list"),
