@@ -4,9 +4,9 @@ from . import views
 
 urlpatterns = [
     # Authentication
-    path("token/", views.CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("register/", views.register, name="register"),
+    path("api/token/", views.CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/register/", views.register, name="register"),
     path("logout/", views.logout, name="logout"),
     path("profile/", views.get_user_profile, name="user_profile"),
     # Product and Category
@@ -15,6 +15,7 @@ urlpatterns = [
     path("category_list", views.category_list, name="category_list"),
     path("categories/<slug:slug>", views.category_detail, name="category_deatil"),
     path("add_to_cart/", views.add_to_cart, name="add_to_cart"),
+    path("cart/<str:cart_code>/", views.get_cart, name="get_cart"),
     path(
         "update_cartitem_quantity/",
         views.update_cartitem_quantity,

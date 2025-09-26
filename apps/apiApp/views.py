@@ -25,7 +25,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 
-@api_view["POST"]
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def register(request):
     email = request.data.get("email")
@@ -57,8 +57,8 @@ def register(request):
     )
 
 
-@api_view["POST"]
-@permission_classes[IsAuthenticated]
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def logout(request):
     try:
         refresh_token = request.data.get("refresh")
@@ -115,6 +115,17 @@ def category_detail(request, slug):
     category = Category.objects.get(slug=slug)
     serializer = CategoryDetailSerialiizer(category)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def get_cart(request, cart_code):
+    try:
+        cart = Cart.objects.get(cart_code=cart_code)
+        serializer = CartSerializer(cart)
+        return Response(serializer.data)
+    except Cart.DoesNotExist:
+        return Response({"error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["POST"])
