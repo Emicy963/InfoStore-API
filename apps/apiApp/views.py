@@ -240,6 +240,17 @@ def get_user_wishlist(request):
     serializer = WishListSerializer(wishlist_itmes, many=True)
     return Response(serializer.data)
 
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def delete_wishlist_items(request, pk):
+    try:
+        wishlist_item = Wishlist.objects.get(pk=pk, user=request.user)
+        wishlist_item.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except Wishlist.DoesNotExist:
+        return Response({"error": "Wishlist item not found"}, status=status.HTTP_404_NOT_FOUND)
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def product_search(request):
