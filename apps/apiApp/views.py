@@ -251,6 +251,21 @@ def delete_wishlist_items(request, pk):
     except Wishlist.DoesNotExist:
         return Response({"error": "Wishlist item not found"}, status=status.HTTP_404_NOT_FOUND)
 
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_user_cart(request):
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    if created:
+        # Generated a unique code for cart
+        import random
+        import string
+        cart_code = "".join(random.choices(string.ascii_letters + string.digits, k=11))
+        cart.cart_code = cart_code
+        cart.save()
+    serialiazer = CartSerializer(cart)
+    return Response(serialiazer.data)
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def product_search(request):
