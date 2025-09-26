@@ -216,21 +216,25 @@ def delete_cartitem(request, pk):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def add_to_wishlist(request):
-    email = request.data.get("email")
     product_id = request.data.get("product_id")
-
-    user = User.objects.get(email=email)
-    product = Product.objects.get(id=product_id)
-
-    wishlist = Wishlist.objects.filter(user=user, product=product)
-    if wishlist:
-        wishlist.delete()
-        return Response("Product removed from wishlist", status=204)
-
-    now_wishlist = Wishlist.objects.create(user=user, product=product)
-    serializer = WishListSerializer(now_wishlist)
-    return Response(serializer.data)
+    
+    try:
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    user = request.user
+    
+    wishlist_item, created = Wishlist.objects.get_or_create(user=user, product=product)
+    
+    if not created:
+        wishlist_item.delete()
+        return Response({"message": "Product removed from wishlist"}, status=status.HTTP_204_NO_CONTENT)
+    
+    serializer = WishListSerializer(wishlist_item)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(["GET"])
