@@ -247,7 +247,7 @@ def get_user_wishlist(request):
 
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
-def delete_wishlist_items(request, pk):
+def delete_wishlist_item(request, pk):
     try:
         wishlist_item = Wishlist.objects.get(pk=pk, user=request.user)
         wishlist_item.delete()
