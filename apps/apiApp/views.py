@@ -232,6 +232,14 @@ def add_to_wishlist(request):
     serializer = WishListSerializer(now_wishlist)
     return Response(serializer.data)
 
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_wishlist(request):
+    wishlist_itmes = Wishlist.objects.filter(user=request.user)
+    serializer = WishListSerializer(wishlist_itmes, many=True)
+    return Response(serializer.data)
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def product_search(request):
