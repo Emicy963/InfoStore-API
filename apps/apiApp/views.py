@@ -133,6 +133,16 @@ def get_cart(request, cart_code):
 
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
+def create_cart(request):
+    import random
+    import string
+    cart_code = ''.join(random.choices(string.ascii_letters + string.digits, k=11))
+    cart = Cart.objects.create(cart_code=cart_code)
+    serializer = CartSerializer(cart)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(["POST"])
 def add_to_cart(request):
     cart_code = request.data.get("cart_code")
     product_id = request.data.get("product_id")

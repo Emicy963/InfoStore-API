@@ -15,6 +15,7 @@ urlpatterns = [
     path("api/cart/create/", views.create_user_cart, name="create_user_cart"),
     path("api/cart/user/", views.get_user_cart, name="get_user_cart"),
     path("api/cart/merge/", views.merge_carts, name="merge_carts"),
+    path("cart/create/", views.create_cart, name="create_cart"),
     path("add_to_cart/", views.add_to_cart, name="add_to_cart"),
     path("update_cartitem_quantity/", views.update_cartitem_quantity, name="update_cartitem_quantity"),
     path("delete_cartitem/<int:pk>/", views.delete_cartitem, name="delete_cartitem"),
