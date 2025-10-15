@@ -206,3 +206,44 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+
+# LOGGING E MONITORAMENTO
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO', # Mude para DEBUG em desenvolvimento se precisar de mais detalhes
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'debug.log', # O arquivo de log será criado na raiz do projeto
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'apps.apiApp': { # Logger específico para sua app
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG', # Nível mais baixo para capturar tudo da sua app
+            'propagate': True,
+        },
+    },
+}
