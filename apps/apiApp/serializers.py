@@ -4,9 +4,11 @@ from django.contrib.auth import get_user_model
 from .models import Product, Category, CartItem, Cart, Review, Wishlist
 
 
+User = get_user_model()
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = get_user_model()
+        model = User
         fields = ["id", "first_name", "last_name", "avatar_url"]
 
 
@@ -102,6 +104,18 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
     
     def validate(self, attrs):
+        identifier = attrs.get("username")
+        password = attrs.get("password")
+
+        if identifier and password:
+            try:
+                user_obj = User.objects.get(email=identifier)
+                # If found by email, set username to email
+                attrs["username"] = user_obj.username
+            except User.DoesNotExist:
+                # If not found by email, proceed with username
+                pass
+
         data = super().validate(attrs)
         data["user"] = {
             "id": self.user.id,
