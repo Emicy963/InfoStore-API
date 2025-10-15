@@ -6,17 +6,20 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.pagination import PageNumberPagination
 from .models import Product, Category, Cart, CartItem, Review, Wishlist
 from .serializers import (
-    ProducListSerializer,
-    ProducDetailSerializer,
+    CustomTokenObtainPairSerializer,
+    ProductListSerializer,
+    ProductDetailSerializer,
     CategoryListSerialiizer,
     CategoryDetailSerialiizer,
     CartSerializer,
     CartItemSerializer,
+    RegistrationSerializer,
     ReviewSerializer,
+    UserSerializer,
     WishListSerializer,
-    CustomTokenObtainPairSerializer,
 )
 
 User = get_user_model()
@@ -28,33 +31,14 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def register(request):
-    email = request.data.get("email")
-    password = request.data.get("password")
-    name = request.data.get("name")
-
-    if not email or not password:
+    serializer = RegistrationSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
         return Response(
-            {"error": "Email and password are required."},
-            status=status.HTTP_400_BAD_REQUEST
+            {"message": "Novo usuário criado com sucesso."},
+            status=status.HTTP_201_CREATED
         )
-    
-    if User.objects.filter(email=email).exists():
-        return Response(
-            {"error": "User with this email already exists."},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    
-    user = User.objects.create_user(email=email, password=password, username=email)
-    if name:
-        user.first_name = name.split(" ")[0]
-        if len(name.split(" ")) > 1:
-            user.last_name = " ".join(name.split(" ")[1:])
-        user.save()
-    
-    return Response(
-        {"message": "User created successfully."},
-        status=status.HTTP_201_CREATED
-    )
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -78,47 +62,67 @@ def logout(request):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def get_user_profile(request):
-    user = request.user
-    return Response(
-        {
-            "id": user.id,
-            "email": user.email,
-            "name": user.get_full_name() or user.username,
-        }
-    )
+def get_user_profile(request, user_id):
+    try:
+        user_to_view = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Response({"error": "Perfil não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+    # PERMISSIONS: Just the himself profile and admin can see the some profile
+    if request.user.id == user_to_view.id or request.user.is_staff:
+        serializer = UserSerializer(user_to_view)
+        return Response(serializer.data)
+    
+    return Response({"error": "Você não tem permissão para ver este perfil."}, status=status.HTTP_403_FORBIDDEN)
+
+
+class ProductPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 100
 
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
-def product_list(requesst):
-    products = Product.objects.filter(featured=True)
-    serializer = ProducListSerializer(products, many=True)
-    return Response(serializer.data)
+def product_list(request):
+    products = Product.objects.filter(featured=True).select_related("category")
+    paginator = ProductPagination()
+    result_page = paginator.paginate_queryset(products, request)
+    serializer = ProductListSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def product_detail(request, slug):
-    products = Product.objects.get(slug=slug)
-    serializer = ProducDetailSerializer(products)
-    return Response(serializer.data)
+    try:
+        products = Product.objects.get(slug=slug)
+        serializer = ProductDetailSerializer(products)
+        return Response(serializer.data)
+    except Product.DoesNotExist:
+        return Response({"error": "Produto não encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def category_list(request):
-    categories = Category.objects.all()
-    serializer = CategoryListSerialiizer(categories, many=True)
-    return Response(serializer.data)
+    try:
+        categories = Category.objects.all()
+        serializer = CategoryListSerialiizer(categories, many=True)
+        return Response(serializer.data)
+    except Category.DoesNotExist:
+        Response({"error": "Categorias não encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def category_detail(request, slug):
-    category = Category.objects.get(slug=slug)
-    serializer = CategoryDetailSerialiizer(category)
-    return Response(serializer.data)
+    try:
+        category = Category.objects.get(slug=slug)
+        serializer = CategoryDetailSerialiizer(category)
+        return Response(serializer.data)
+    except Category.DoesNotExist:
+        return Response({"error": "Categoria não encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["GET"])
@@ -138,30 +142,39 @@ def create_cart(request):
     import random
     import string
     cart_code = ''.join(random.choices(string.ascii_letters + string.digits, k=11))
-    cart = Cart.objects.create(cart_code=cart_code)
-    serializer = CartSerializer(cart)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    try:
+        cart = Cart.objects.create(cart_code=cart_code)
+        serializer = CartSerializer(cart)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def add_to_cart(request):
     cart_code = request.data.get("cart_code")
     product_id = request.data.get("product_id")
     quantity = request.data.get("quantity", 1)
 
-    cart, created = Cart.objects.get_or_create(cart_code=cart_code)
-    product = Product.objects.get(id=product_id)
+    try:
+        cart, created = Cart.objects.get_or_create(cart_code=cart_code)
+        product = Product.objects.get(id=product_id)
 
-    cartitem, created = CartItem.objects.get_or_create(product=product, cart=cart)
-    
-    if created:
-        cartitem.quantity = quantity
-    else:
-        cartitem.quantity += quantity
-    
-    cartitem.save()
+        cartitem, created = CartItem.objects.get_or_create(product=product, cart=cart)
+        
+        if created:
+            cartitem.quantity = quantity
+        else:
+            cartitem.quantity += quantity
+        
+        cartitem.save()
 
-    serializer = CartSerializer(cart)
-    return Response(serializer.data)
+        serializer = CartSerializer(cart)
+        return Response(serializer.data)
+    except Product.DoesNotExist:
+        return Response({"error": "Produto não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["PUT"])
@@ -171,14 +184,19 @@ def update_cartitem_quantity(request):
 
     quantity = int(quantity)
 
-    cartitem = CartItem.objects.get(id=cartitem_id)
-    cartitem.quantity = quantity
-    cartitem.save()
+    try:
+        cartitem = CartItem.objects.get(id=cartitem_id)
+        cartitem.quantity = quantity
+        cartitem.save()
 
-    serializer = CartItemSerializer(cartitem)
-    return Response(
-        {"data": serializer.data, "message": "CartItem updated sucessfully!"}
-    )
+        serializer = CartItemSerializer(cartitem)
+        return Response(
+            {"data": serializer.data, "message": "CartItem updated sucessfully!"}
+        )
+    except CartItem.DoesNotExist:
+        return Response({"error": "Carrinho não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -337,11 +355,16 @@ def merge_carts(request):
 def product_search(request):
     query = request.query_params.get("query")
     if not query:
-        return Response({"error": "No query provided"}, status=400)
+        return Response({"error": "Nenhuma consulta fornecida"}, status=400)
     
-    products = Product.objects.filter(Q(name__icontains=query) | 
-                                      Q(description__icontains=query) | 
-                                      Q(category__name__icontains=query))
+    products = Product.objects.filter(
+        Q(name__icontains=query) |
+        Q(description__icontains=query) |
+        Q(category__name__icontains=query)
+    ).select_related("category")
+
+    paginator = ProductPagination()
+    result_page = paginator.paginate_queryset(products, request)
     
-    serializer = ProducListSerializer(products, many=True)
-    return Response(serializer.data)
+    serializer = ProductListSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
