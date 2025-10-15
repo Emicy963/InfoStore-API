@@ -13,7 +13,16 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["username", "email", "password", "confirm_password", "first_name", "last_name", "phone_number", "bi"]
+        fields = [
+            "username",
+            "email",
+            "password",
+            "confirm_password",
+            "first_name",
+            "last_name",
+            "phone_number",
+            "bi",
+        ]
 
     def validate(self, attrs):
         email = attrs.get("email")
@@ -28,7 +37,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        validated_data.pop('confirm_password')
+        validated_data.pop("confirm_password")
         user = User.objects.create_user(**validated_data)
         return user
 
@@ -43,9 +52,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if identifier and password:
             try:
                 user_obj = User.objects.get(email=identifier)
-                attrs["username"] = user_obj.username # Chance the real username for father validation
+                attrs["username"] = (
+                    user_obj.username
+                )  # Chance the real username for father validation
             except User.DoesNotExist:
-                # If don't founde, use the username
+                # If don't found, use the username
                 pass
 
         data = super().validate(attrs)
@@ -56,18 +67,36 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             "name": self.user.get_full_name() or self.user.username,
         }
         return data
-    
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "first_name", "last_name", "email", "phone_number", "bi", "avatar_url"]
+        fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "phone_number",
+            "bi",
+            "avatar_url",
+        ]
 
 
 class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ["id", "name", "slug", "description", "image", "price", "average_rating", "total_reviews"]
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "description",
+            "image",
+            "price",
+            "average_rating",
+            "total_reviews",
+        ]
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):

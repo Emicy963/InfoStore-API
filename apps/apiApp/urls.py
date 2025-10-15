@@ -4,35 +4,40 @@ from . import views
 
 urlpatterns = [
     # Authentication
-    path("auth/token/", views.CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path(
+        "auth/token/",
+        views.CustomTokenObtainPairView.as_view(),
+        name="token_obtain_pair",
+    ),
     path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("auth/register/", views.register, name="register"),
     path("auth/logout/", views.logout, name="logout"),
     path("auth/profile/<int:user_id>/", views.get_user_profile, name="user_profile"),
-    
     # Cart
     path("cart/", views.handle_cart, name="get_cart"),
     path("cart/merge/", views.merge_carts, name="merge_carts"),
     path("cart/add/", views.add_to_cart, name="add_to_cart"),
-    path("cart/update/", views.update_cartitem_quantity, name="update_cartitem_quantity"),
+    path(
+        "cart/update/", views.update_cartitem_quantity, name="update_cartitem_quantity"
+    ),
     path("cart/item/<int:pk>/delete/", views.delete_cartitem, name="delete_cartitem"),
-    
     # Product and Category
     path("products/", views.product_list, name="product_list"),
     path("products/<slug:slug>/", views.product_detail, name="product_detail"),
     path("categories/", views.category_list, name="category_list"),
     path("categories/<slug:slug>/", views.category_detail, name="category_detail"),
-    
     # Wishlist
     path("wishlist/", views.get_user_wishlist, name="get_user_wishlist"),
-    path("wishlist/<int:pk>/delete/", views.delete_wishlist_item, name="delete_wishlist_item"),
+    path(
+        "wishlist/<int:pk>/delete/",
+        views.delete_wishlist_item,
+        name="delete_wishlist_item",
+    ),
     path("wishlist/add/", views.add_to_wishlist, name="add_to_wishlist"),
-    
     # Reviews
     path("reviews/add/", views.add_review, name="add_review"),
     path("reviews/<int:pk>/update/", views.update_review, name="update_review"),
     path("reviews/<int:pk>/delete/", views.delete_review, name="delete_review"),
-    
     # Search
     path("search/", views.product_search, name="search"),
 ]

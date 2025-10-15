@@ -24,6 +24,7 @@ from .serializers import (
 
 User = get_user_model()
 
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
@@ -36,7 +37,7 @@ def register(request):
         user = serializer.save()
         return Response(
             {"message": "Novo usuário criado com sucesso."},
-            status=status.HTTP_201_CREATED
+            status=status.HTTP_201_CREATED,
         )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -50,14 +51,10 @@ def logout(request):
             token = RefreshToken(refresh_token)
             token.blacklist()
         return Response(
-            {"message": "Succesfully logged out"},
-            status=status.HTTP_200_OK
+            {"message": "Succesfully logged out"}, status=status.HTTP_200_OK
         )
     except Exception as e:
-        return Response(
-            {"error": str(e)},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET"])
@@ -66,14 +63,19 @@ def get_user_profile(request, user_id):
     try:
         user_to_view = User.objects.get(id=user_id)
     except User.DoesNotExist:
-        return Response({"error": "Perfil não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Perfil não encontrado."}, status=status.HTTP_404_NOT_FOUND
+        )
 
     # PERMISSIONS: Just the himself profile and admin can see the some profile
     if request.user.id == user_to_view.id or request.user.is_staff:
         serializer = UserSerializer(user_to_view)
         return Response(serializer.data)
-    
-    return Response({"error": "Você não tem permissão para ver este perfil."}, status=status.HTTP_403_FORBIDDEN)
+
+    return Response(
+        {"error": "Você não tem permissão para ver este perfil."},
+        status=status.HTTP_403_FORBIDDEN,
+    )
 
 
 class ProductPagination(PageNumberPagination):
@@ -100,7 +102,9 @@ def product_detail(request, slug):
         serializer = ProductDetailSerializer(products)
         return Response(serializer.data)
     except Product.DoesNotExist:
-        return Response({"error": "Produto não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Produto não encontrado."}, status=status.HTTP_404_NOT_FOUND
+        )
 
 
 @api_view(["GET"])
@@ -111,7 +115,9 @@ def category_list(request):
         serializer = CategoryListSerialiizer(categories, many=True)
         return Response(serializer.data)
     except Category.DoesNotExist:
-        Response({"error": "Categorias não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        Response(
+            {"error": "Categorias não encontrado."}, status=status.HTTP_404_NOT_FOUND
+        )
 
 
 @api_view(["GET"])
@@ -122,7 +128,9 @@ def category_detail(request, slug):
         serializer = CategoryDetailSerialiizer(category)
         return Response(serializer.data)
     except Category.DoesNotExist:
-        return Response({"error": "Categoria não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Categoria não encontrado."}, status=status.HTTP_404_NOT_FOUND
+        )
 
 
 @api_view(["GET", "POST"])
@@ -133,32 +141,38 @@ def handle_cart(request):
     - POST: Create a cart (anonumos or user).
     - GET: Get cart (anonymos with ?code= or auth user).
     """
-    if request.method == 'POST':
+    if request.method == "POST":
         if request.user.is_authenticated:
             # Case 1: Auth User
             cart, created = Cart.objects.get_or_create(user=request.user)
             if created:
                 import random
                 import string
-                cart.cart_code = "".join(random.choices(string.ascii_letters + string.digits, k=11))
+
+                cart.cart_code = "".join(
+                    random.choices(string.ascii_letters + string.digits, k=11)
+                )
                 cart.save()
             message = "Carrinho do usuário obtido/criado com sucesso."
         else:
             # Case 2: Invite (Anonymos)
             import random
             import string
-            cart_code = "".join(random.choices(string.ascii_letters + string.digits, k=11))
+
+            cart_code = "".join(
+                random.choices(string.ascii_letters + string.digits, k=11)
+            )
             cart = Cart.objects.create(cart_code=cart_code)
             message = "Carrinho de visitante criado com sucesso."
 
         serializer = CartSerializer(cart)
         return Response(
-            {"data": serializer.data, "message": message}, 
-            status=status.HTTP_201_CREATED
+            {"data": serializer.data, "message": message},
+            status=status.HTTP_201_CREATED,
         )
 
-    elif request.method == 'GET':
-        cart_code = request.query_params.get('code')
+    elif request.method == "GET":
+        cart_code = request.query_params.get("code")
 
         if cart_code:
             try:
@@ -166,17 +180,29 @@ def handle_cart(request):
                 serializer = CartSerializer(cart)
                 return Response(serializer.data)
             except Cart.DoesNotExist:
-                return Response({"error": "Carrinho não encontrado."}, status=status.HTTP_404_NOT_FOUND)
-        
+                return Response(
+                    {"error": "Carrinho não encontrado."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
         elif request.user.is_authenticated:
             try:
                 cart = Cart.objects.get(user=request.user)
                 serializer = CartSerializer(cart)
                 return Response(serializer.data)
             except Cart.DoesNotExist:
-                return Response({"error": "Carrinho de usuário não encontrado. Crie um primeiro."}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {"error": "Carrinho de usuário não encontrado. Crie um primeiro."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
 
-        return Response({"error": "É necessário estar autenticado ou fornecer um código de carrinho."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {
+                "error": "É necessário estar autenticado ou fornecer um código de carrinho."
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -190,18 +216,20 @@ def add_to_cart(request):
         product = Product.objects.get(id=product_id)
 
         cartitem, created = CartItem.objects.get_or_create(product=product, cart=cart)
-        
+
         if created:
             cartitem.quantity = quantity
         else:
             cartitem.quantity += quantity
-        
+
         cartitem.save()
 
         serializer = CartSerializer(cart)
         return Response(serializer.data)
     except Product.DoesNotExist:
-        return Response({"error": "Produto não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Produto não encontrado."}, status=status.HTTP_404_NOT_FOUND
+        )
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -215,25 +243,38 @@ def update_cartitem_quantity(request):
     try:
         quantity = int(quantity)
         if quantity <= 0:
-            return Response({"error": "A quantidade deve ser maior que zero."}, status=status.HTTP_400_BAD_REQUEST)
-            
+            return Response(
+                {"error": "A quantidade deve ser maior que zero."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         cartitem = CartItem.objects.get(id=cartitem_id)
-        
+
         if cartitem.cart.user and cartitem.cart.user != request.user:
-            return Response({"error": "Você não tem permissão para modificar este item."}, status=status.HTTP_403_FORBIDDEN)
-            
+            return Response(
+                {"error": "Você não tem permissão para modificar este item."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         cartitem.quantity = quantity
         cartitem.save()
 
         serializer = CartItemSerializer(cartitem)
         return Response(
-            {"data": serializer.data, 
-             "message": "Item do carrinho atualizado com sucesso!"}
+            {
+                "data": serializer.data,
+                "message": "Item do carrinho atualizado com sucesso!",
+            }
         )
     except CartItem.DoesNotExist:
-        return Response({"error": "Item do carrinho não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Item do carrinho não encontrado."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
     except ValueError:
-        return Response({"error": "Quantidade inválida."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Quantidade inválida."}, status=status.HTTP_400_BAD_REQUEST
+        )
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -247,11 +288,14 @@ def add_review(request):
 
     try:
         product = Product.objects.get(id=product_id)
-        
+
         user = request.user
 
         if Review.objects.filter(product=product, user=user).exists():
-            return Response({"error": "Você já avaliou este produto"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Você já avaliou este produto"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         review = Review.objects.create(
             product=product, user=user, rating=rating, comment=comment
@@ -259,7 +303,9 @@ def add_review(request):
         serializer = ReviewSerializer(review)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     except Product.DoesNotExist:
-        return Response({"error": "Produto não encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Produto não encontrado"}, status=status.HTTP_404_NOT_FOUND
+        )
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -271,8 +317,11 @@ def update_review(request, pk):
         review = Review.objects.get(id=pk)
 
         if review.user != request.user and not request.user.is_staff:
-            return Response({"error": "Você não tem permissão para modificar esta avaliação"}, status=status.HTTP_403_FORBIDDEN)
-            
+            return Response(
+                {"error": "Você não tem permissão para modificar esta avaliação"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         rating = request.data.get("rating")
         comment = request.data.get("comment")
 
@@ -283,7 +332,9 @@ def update_review(request, pk):
         serializer = ReviewSerializer(review)
         return Response(serializer.data)
     except Review.DoesNotExist:
-        return Response({"error": "Avaliação não encontrada"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Avaliação não encontrada"}, status=status.HTTP_404_NOT_FOUND
+        )
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -293,14 +344,22 @@ def update_review(request, pk):
 def delete_review(request, pk):
     try:
         review = Review.objects.get(id=pk)
-        
+
         if review.user != request.user and not request.user.is_staff:
-            return Response({"error": "Você não tem permissão para excluir esta avaliação"}, status=status.HTTP_403_FORBIDDEN)
-            
+            return Response(
+                {"error": "Você não tem permissão para excluir esta avaliação"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         review.delete()
-        return Response({"message": "Avaliação excluída com sucesso"}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"message": "Avaliação excluída com sucesso"},
+            status=status.HTTP_204_NO_CONTENT,
+        )
     except Review.DoesNotExist:
-        return Response({"error": "Avaliação não encontrada"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Avaliação não encontrada"}, status=status.HTTP_404_NOT_FOUND
+        )
 
 
 @api_view(["DELETE"])
@@ -308,14 +367,23 @@ def delete_review(request, pk):
 def delete_cartitem(request, pk):
     try:
         cartitem = CartItem.objects.get(id=pk)
-        
+
         if cartitem.cart.user and cartitem.cart.user != request.user:
-            return Response({"error": "Você não tem permissão para excluir este item"}, status=status.HTTP_403_FORBIDDEN)
-            
+            return Response(
+                {"error": "Você não tem permissão para excluir este item"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         cartitem.delete()
-        return Response({"message": "Item do carrinho excluído com sucesso"}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"message": "Item do carrinho excluído com sucesso"},
+            status=status.HTTP_204_NO_CONTENT,
+        )
     except CartItem.DoesNotExist:
-        return Response({"error": "Item do carrinho não encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Item do carrinho não encontrado"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -324,20 +392,25 @@ def delete_cartitem(request, pk):
 @permission_classes([IsAuthenticated])
 def add_to_wishlist(request):
     product_id = request.data.get("product_id")
-    
+
     try:
         product = Product.objects.get(id=product_id)
     except Product.DoesNotExist:
-        return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
-    
+        return Response(
+            {"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND
+        )
+
     user = request.user
-    
+
     wishlist_item, created = Wishlist.objects.get_or_create(user=user, product=product)
-    
+
     if not created:
         wishlist_item.delete()
-        return Response({"message": "Product removed from wishlist"}, status=status.HTTP_204_NO_CONTENT)
-    
+        return Response(
+            {"message": "Product removed from wishlist"},
+            status=status.HTTP_204_NO_CONTENT,
+        )
+
     serializer = WishListSerializer(wishlist_item)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -358,7 +431,9 @@ def delete_wishlist_item(request, pk):
         wishlist_item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     except Wishlist.DoesNotExist:
-        return Response({"error": "Wishlist item not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Wishlist item not found"}, status=status.HTTP_404_NOT_FOUND
+        )
 
 
 @api_view(["POST"])
@@ -371,9 +446,12 @@ def merge_carts(request):
             # Generate an unique code for cart
             import random
             import string
-            user_cart.cart_code = "".join(random.choices(string.ascii_letters + string.digits, k=11))
+
+            user_cart.cart_code = "".join(
+                random.choices(string.ascii_letters + string.digits, k=11)
+            )
             user_cart.save()
-        
+
         # Get the temporary cart (if exist)
         temp_cart_code = request.data.get("temp_cart_code")
         if temp_cart_code:
@@ -384,16 +462,17 @@ def merge_carts(request):
                     CartItem.objects.update_or_create(
                         cart=user_cart,
                         product=item.product,
-                        defaults={"quantity": item.quantity}
+                        defaults={"quantity": item.quantity},
                     )
                 temp_cart.delete()
             except Cart.DoesNotExist:
                 pass
-        
+
         serializer = CartSerializer(user_cart)
         return Response(serializer.data)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -401,15 +480,15 @@ def product_search(request):
     query = request.query_params.get("query")
     if not query:
         return Response({"error": "Nenhuma consulta fornecida"}, status=400)
-    
+
     products = Product.objects.filter(
-        Q(name__icontains=query) |
-        Q(description__icontains=query) |
-        Q(category__name__icontains=query)
+        Q(name__icontains=query)
+        | Q(description__icontains=query)
+        | Q(category__name__icontains=query)
     ).select_related("category")
 
     paginator = ProductPagination()
     result_page = paginator.paginate_queryset(products, request)
-    
+
     serializer = ProductListSerializer(result_page, many=True)
     return paginator.get_paginated_response(serializer.data)

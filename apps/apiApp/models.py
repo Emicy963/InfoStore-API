@@ -9,11 +9,14 @@ class CustomUser(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
-    bi = models.CharField("BI/Passaporte", max_length=30, blank=True, null=True, unique=True)
+    bi = models.CharField(
+        "BI/Passaporte", max_length=30, blank=True, null=True, unique=True
+    )
     avatar_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.username} ({self.email})"
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -73,7 +76,7 @@ class Cart(models.Model):
         on_delete=models.CASCADE,
         related_name="carts",
         blank=True,
-        null=True
+        null=True,
     )
     cart_code = models.CharField(max_length=11, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
