@@ -2,15 +2,18 @@ from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 
 
 class CustomUser(AbstractUser):
+    username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(unique=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    bi = models.CharField("BI/Passaporte", max_length=30, blank=True, null=True, unique=True)
     avatar_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
-        return self.email
-
+        return f"{self.username} ({self.email})"
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -25,7 +28,7 @@ class Category(models.Model):
             self.slug = slugify(self.name)
             unique_slug = self.slug
             counter = 1
-            if Product.objects.filter(slug=unique_slug).exists():
+            while Category.objects.filter(slug=unique_slug).exists():
                 unique_slug = f"{self.slug}-{counter}"
                 counter += 1
             self.slug = unique_slug
@@ -46,6 +49,8 @@ class Product(models.Model):
         blank=True,
         null=True,
     )
+    average_rating = models.FloatField(default=0.0)
+    total_reviews = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -116,15 +121,15 @@ class Review(models.Model):
         ordering = ["-created_at"]
 
 
-class ProductRating(models.Model):
-    product = models.OneToOneField(
-        Product, on_delete=models.CASCADE, related_name="rating"
-    )
-    average_rating = models.FloatField(default=0.0)
-    total_reviews = models.PositiveIntegerField(default=0)
+# class ProductRating(models.Model):
+#     product = models.OneToOneField(
+#         Product, on_delete=models.CASCADE, related_name="rating"
+#     )
+#     average_rating = models.FloatField(default=0.0)
+#     total_reviews = models.PositiveIntegerField(default=0)
 
-    def __str__(self):
-        return f"{self.product.name} - {self.average_rating} ({self.total_reviews}) revews."
+#     def __str__(self):
+#         return f"{self.product.name} - {self.average_rating} ({self.total_reviews}) revews."
 
 
 class Wishlist(models.Model):
