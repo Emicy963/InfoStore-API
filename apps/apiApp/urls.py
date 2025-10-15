@@ -4,17 +4,17 @@ from . import views
 
 urlpatterns = [
     # Authentication
-    path("api/token/", views.CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("api/register/", views.register, name="register"),
-    path("api/logout/", views.logout, name="logout"),
-    path("api/profile/", views.get_user_profile, name="user_profile"),
+    path("auth/token/", views.CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("auth/register/", views.register, name="register"),
+    path("auth/logout/", views.logout, name="logout"),
+    path("accounts/profile/<int:user_id>/", views.get_user_profile, name="user_profile"),
     
     # Cart
-    path("api/cart/<str:cart_code>/", views.get_cart, name="get_cart"),
-    path("api/cart/create/", views.create_user_cart, name="create_user_cart"),
-    path("api/cart/user/", views.get_user_cart, name="get_user_cart"),
-    path("api/cart/merge/", views.merge_carts, name="merge_carts"),
+    path("cart/<str:cart_code>/", views.get_cart, name="get_cart"),
+    path("cart/create/", views.create_user_cart, name="create_user_cart"),
+    path("cart/user/", views.get_user_cart, name="get_user_cart"),
+    path("cart/merge/", views.merge_carts, name="merge_carts"),
     path("cart/create/", views.create_cart, name="create_cart"),
     path("add_to_cart/", views.add_to_cart, name="add_to_cart"),
     path("update_cartitem_quantity/", views.update_cartitem_quantity, name="update_cartitem_quantity"),
@@ -22,13 +22,13 @@ urlpatterns = [
     
     # Product and Category
     path("product_list", views.product_list, name="product_list"),
-    path("products/<slug:slug>", views.product_detail, name="product_detail"),
+    path("product/<slug:slug>", views.product_detail, name="product_detail"),
     path("category_list", views.category_list, name="category_list"),
-    path("categories/<slug:slug>", views.category_detail, name="category_deatil"),
+    path("category/<slug:slug>", views.category_detail, name="category_deatil"),
     
     # Wishlist
-    path("api/wishlist/", views.get_user_wishlist, name="get_user_wishlist"),
-    path("api/wishlist/<int:pk>/", views.delete_wishlist_item, name="delete_wishlist_item"),
+    path("wishlist/", views.get_user_wishlist, name="get_user_wishlist"),
+    path("wishlist/<int:pk>/", views.delete_wishlist_item, name="delete_wishlist_item"),
     path("add_to_wishlist/", views.add_to_wishlist, name="add_to_wishlist"),
     
     # Reviews
