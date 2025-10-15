@@ -6,7 +6,6 @@ from .models import (
     Category,
     Cart,
     CartItem,
-    ProductRating,
     Review,
     Wishlist,
 )
@@ -32,4 +31,4 @@ class CategoryAdmin(admin.ModelAdmin):
 
 admin.site.register(Category, CategoryAdmin)
 
-admin.site.register([Cart, CartItem, Review, ProductRating, Wishlist])
+admin.site.register([Cart, CartItem, Review, Wishlist])
