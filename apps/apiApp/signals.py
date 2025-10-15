@@ -1,32 +1,26 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.db.models import Avg
-from .models import Review, ProductRating
+from .models import Review, Product
 
 
 @receiver(post_save, sender=Review)
 def update_product_rating_on_save(sender, instance, **kwargs):
     product = instance.product
     reviews = product.reviews.all()
-    total_reviews = reviews.count()
 
-    reviews_average = reviews.aggregate(Avg("rating"))["rating__avg"] or 0.0
-
-    product_rating, created = ProductRating.objects.get_or_create(product=product)
-    product_rating.average_rating = reviews_average
-    product_rating.total_reviews = total_reviews
-    product_rating.save()
+    # Update on Product
+    product.total_reviews = reviews.count()
+    product.average_rating = reviews.aggregate(Avg("rating"))["rating__avg"] or 0.0
+    product.save()
 
 
 @receiver(post_delete, sender=Review)
 def update_product_rating_on_delete(sender, instance, **kwargs):
     product = instance.product
     reviews = product.reviews.all()
-    total_reviews = reviews.count()
 
-    reviews_average = reviews.aggregate(Avg("rating"))["rating__avg"] or 0.0
-
-    product_rating, created = ProductRating.objects.get_or_create(product=product)
-    product_rating.average_rating = reviews_average
-    product_rating.total_reviews = total_reviews
-    product_rating.save()
+    # Update on Product
+    product.total_reviews = reviews.count()
+    product.average_rating = reviews.aggregate(Avg("rating"))["rating__avg"] or 0.0
+    product.save()
