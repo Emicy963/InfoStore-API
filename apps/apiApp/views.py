@@ -125,29 +125,58 @@ def category_detail(request, slug):
         return Response({"error": "Categoria não encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(["GET"])
+@api_view(["GET", "POST"])
 @permission_classes([AllowAny])
-def get_cart(request, cart_code):
-    try:
-        cart = Cart.objects.get(cart_code=cart_code)
-        serializer = CartSerializer(cart)
-        return Response(serializer.data)
-    except Cart.DoesNotExist:
-        return Response({"error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND)
+def handle_cart(request):
+    """
+    Endpoint unify for create and get cart.
+    - POST: Create a cart (anonumos or user).
+    - GET: Get cart (anonymos with ?code= or auth user).
+    """
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            # Case 1: Auth User
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            if created:
+                import random
+                import string
+                cart.cart_code = "".join(random.choices(string.ascii_letters + string.digits, k=11))
+                cart.save()
+            message = "Carrinho do usuário obtido/criado com sucesso."
+        else:
+            # Case 2: Invite (Anonymos)
+            import random
+            import string
+            cart_code = "".join(random.choices(string.ascii_letters + string.digits, k=11))
+            cart = Cart.objects.create(cart_code=cart_code)
+            message = "Carrinho de visitante criado com sucesso."
 
-
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def create_cart(request):
-    import random
-    import string
-    cart_code = ''.join(random.choices(string.ascii_letters + string.digits, k=11))
-    try:
-        cart = Cart.objects.create(cart_code=cart_code)
         serializer = CartSerializer(cart)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"data": serializer.data, "message": message}, 
+            status=status.HTTP_201_CREATED
+        )
+
+    elif request.method == 'GET':
+        cart_code = request.query_params.get('code')
+
+        if cart_code:
+            try:
+                cart = Cart.objects.get(cart_code=cart_code)
+                serializer = CartSerializer(cart)
+                return Response(serializer.data)
+            except Cart.DoesNotExist:
+                return Response({"error": "Carrinho não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        
+        elif request.user.is_authenticated:
+            try:
+                cart = Cart.objects.get(user=request.user)
+                serializer = CartSerializer(cart)
+                return Response(serializer.data)
+            except Cart.DoesNotExist:
+                return Response({"error": "Carrinho de usuário não encontrado. Crie um primeiro."}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({"error": "É necessário estar autenticado ou fornecer um código de carrinho."}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -178,75 +207,117 @@ def add_to_cart(request):
 
 
 @api_view(["PUT"])
+@permission_classes([IsAuthenticated])
 def update_cartitem_quantity(request):
     cartitem_id = request.data.get("item_id")
     quantity = request.data.get("quantity")
 
-    quantity = int(quantity)
-
     try:
+        quantity = int(quantity)
+        if quantity <= 0:
+            return Response({"error": "A quantidade deve ser maior que zero."}, status=status.HTTP_400_BAD_REQUEST)
+            
         cartitem = CartItem.objects.get(id=cartitem_id)
+        
+        if cartitem.cart.user and cartitem.cart.user != request.user:
+            return Response({"error": "Você não tem permissão para modificar este item."}, status=status.HTTP_403_FORBIDDEN)
+            
         cartitem.quantity = quantity
         cartitem.save()
 
         serializer = CartItemSerializer(cartitem)
         return Response(
-            {"data": serializer.data, "message": "CartItem updated sucessfully!"}
+            {"data": serializer.data, 
+             "message": "Item do carrinho atualizado com sucesso!"}
         )
     except CartItem.DoesNotExist:
-        return Response({"error": "Carrinho não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Item do carrinho não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+    except ValueError:
+        return Response({"error": "Quantidade inválida."}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def add_review(request):
     product_id = request.data.get("product_id")
-    email = request.data.get("email")
     rating = request.data.get("rating")
     comment = request.data.get("comment")
 
-    product = Product.objects.get(id=product_id)
-    user = User.objects.get(email=email)
+    try:
+        product = Product.objects.get(id=product_id)
+        
+        user = request.user
 
-    if Review.objects.filter(product=product, user=user).exists():
-        return Response({"error": "You have already reviewed this product"}, status=400)
+        if Review.objects.filter(product=product, user=user).exists():
+            return Response({"error": "Você já avaliou este produto"}, status=status.HTTP_400_BAD_REQUEST)
 
-    review = Review.objects.create(
-        product=product, user=user, rating=rating, comment=comment
-    )
-    serializer = ReviewSerializer(review)
-    return Response(serializer.data)
+        review = Review.objects.create(
+            product=product, user=user, rating=rating, comment=comment
+        )
+        serializer = ReviewSerializer(review)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    except Product.DoesNotExist:
+        return Response({"error": "Produto não encontrado"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["PUT"])
+@permission_classes([IsAuthenticated])
 def update_review(request, pk):
-    review = Review.objects.get(id=pk)
-    rating = request.data.get("rating")
-    comment = request.data.get("comment")
+    try:
+        review = Review.objects.get(id=pk)
 
-    review.rating = rating
-    review.comment = comment
-    review.save()
+        if review.user != request.user and not request.user.is_staff:
+            return Response({"error": "Você não tem permissão para modificar esta avaliação"}, status=status.HTTP_403_FORBIDDEN)
+            
+        rating = request.data.get("rating")
+        comment = request.data.get("comment")
 
-    serializer = ReviewSerializer(review)
-    return Response(serializer.data)
+        review.rating = rating
+        review.comment = comment
+        review.save()
+
+        serializer = ReviewSerializer(review)
+        return Response(serializer.data)
+    except Review.DoesNotExist:
+        return Response({"error": "Avaliação não encontrada"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
 def delete_review(request, pk):
-    review = Review.objects.get(id=pk)
-    review.delete()
-
-    return Response("Review delete sucessfully", status=204)
+    try:
+        review = Review.objects.get(id=pk)
+        
+        if review.user != request.user and not request.user.is_staff:
+            return Response({"error": "Você não tem permissão para excluir esta avaliação"}, status=status.HTTP_403_FORBIDDEN)
+            
+        review.delete()
+        return Response({"message": "Avaliação excluída com sucesso"}, status=status.HTTP_204_NO_CONTENT)
+    except Review.DoesNotExist:
+        return Response({"error": "Avaliação não encontrada"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
 def delete_cartitem(request, pk):
-    cartitem = CartItem.objects.get(id=pk)
-    cartitem.delete()
-
-    return Response("Cartitem delete sucessfully", status=204)
+    try:
+        cartitem = CartItem.objects.get(id=pk)
+        
+        if cartitem.cart.user and cartitem.cart.user != request.user:
+            return Response({"error": "Você não tem permissão para excluir este item"}, status=status.HTTP_403_FORBIDDEN)
+            
+        cartitem.delete()
+        return Response({"message": "Item do carrinho excluído com sucesso"}, status=status.HTTP_204_NO_CONTENT)
+    except CartItem.DoesNotExist:
+        return Response({"error": "Item do carrinho não encontrado"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -288,32 +359,6 @@ def delete_wishlist_item(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
     except Wishlist.DoesNotExist:
         return Response({"error": "Wishlist item not found"}, status=status.HTTP_404_NOT_FOUND)
-
-
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def create_user_cart(request):
-    cart, created = Cart.objects.get_or_create(user=request.user)
-    if created:
-        # Generated a unique code for cart
-        import random
-        import string
-        cart_code = "".join(random.choices(string.ascii_letters + string.digits, k=11))
-        cart.cart_code = cart_code
-        cart.save()
-    serialiazer = CartSerializer(cart)
-    return Response(serialiazer.data)
-
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_user_cart(request):
-    try:
-        cart = Cart.objects.get(user=request.user)
-        serializer = CartSerializer(cart)
-        return Response(serializer.data)
-    except Cart.DoesNotExist:
-        return Response({"error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["POST"])
