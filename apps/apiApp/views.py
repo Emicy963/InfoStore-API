@@ -123,6 +123,39 @@ def update_profile(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    try:
+        user = request.user
+        current_password = request.data.get("current_password")
+        new_password = request.data.get("new_password")
+
+        if not user.check_password(current_password):
+            return Response(
+                {"error": "Senha atual incorrecta."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if len(new_password) < 8:
+            return Response(
+                {"error": "A senha deve ter pelo menos 8 caracteres."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user.set_password(new_password)
+        user.save()
+
+        return Response(
+            {"message": "Senha alterada com sucesso."},
+            status=status.HTTP_200_OK
+        )
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
 #====================================
 # PRODUCT AND CATEGORY
 #====================================
