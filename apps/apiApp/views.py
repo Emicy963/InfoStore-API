@@ -11,6 +11,7 @@ from .models import Order, OrderItem, Product, Category, Cart, CartItem, Review,
 from .serializers import (
     CreateOrderSerializer,
     CustomTokenObtainPairSerializer,
+    OrderSerializer,
     ProductListSerializer,
     ProductDetailSerializer,
     CategoryListSerialiizer,
@@ -545,6 +546,18 @@ def create_order(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_orders(request):
+    try:
+        orders = Order.objects.filter(user=request.user).order_by("-created_at")
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
