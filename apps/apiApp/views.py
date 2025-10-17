@@ -560,6 +560,24 @@ def get_user_orders(request):
         )
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_order_detail(request, pk):
+    try:
+        order = Order.objects.get(pk=pk, user=request.user)
+        serializer = OrderSerializer(order)
+        return Response(serializer.data)
+    except Order.DoesNotExist:
+        return Response(
+            {"error": "Pedido não encontrado"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+@api_view(["GET"])
 @permission_classes([AllowAny])
 def product_search(request):
     query = request.query_params.get("query")
