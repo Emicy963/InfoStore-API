@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: infostore-api
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn infostore.wsgi:application"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: FRONTEND_URL
+        value: https://infostore-tau.vercel.app
+      - key: PYTHON_VERSION
+        value: 3.13.5
+  
+  - type: cron
+    name: infostore-keepalive
+    env: python
+    schedule: "*/10 * * * *"
+    buildCommand: "echo 'Keep alive service'"
+    startCommand: "curl https://infostore-api.onrender.com/api/products/"
