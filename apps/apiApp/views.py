@@ -83,6 +83,45 @@ def get_user_profile(request, user_id):
         status=status.HTTP_403_FORBIDDEN,
     )
 
+@api_view(["PUT"])
+@permission_classes([IsAuthenticated])
+def update_profile(request):
+    try:
+        user = request.user
+        data = request.data
+
+        if "name" in data:
+            name_parts = data["name"].split(" ", 1)
+            user.first_name = name_parts[0]
+            if len(name_parts) > 1:
+                user.last_name = name_parts[1]
+        
+        if "email" in data:
+            if User.objects.exclude(pk=user.pk).filter(email=data["email"]).exists():
+                return Response(
+                    {"error": "Este email já está em uso por outro usuário"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            user.email = data["email"]
+        
+        if "phone" in data:
+            user.phone_number = data["phone"]
+        
+        if "address" in data and hasattr(user, "address"):
+            user.address = data["address"]
+        
+        if "city" in data and handle_cart(user, "city"):
+            user.city = data["city"]
+        
+        user.save()
+
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 #====================================
 # PRODUCT AND CATEGORY
