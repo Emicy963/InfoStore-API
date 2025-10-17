@@ -1,24 +1,26 @@
 services:
   - type: web
     name: infostore-api
-    env: python
-    buildCommand: "./build.sh"
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn infostore.wsgi:application"
+    healthCheckPath: "/api/products/" # Um endpoint leve para o Render verificar a saúde
     envVars:
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
-        value: False
+        value: false
       - key: ALLOWED_HOSTS
         value: .onrender.com
       - key: FRONTEND_URL
         value: https://infostore-tau.vercel.app
       - key: PYTHON_VERSION
-        value: 3.13.5
-  
+        value: 3.11.7 # Versão estável e amplamente suportada
+
+  # --- SERVIÇO CRON (KEEP-ALIVE) ---
   - type: cron
     name: infostore-keepalive
-    env: python
+    plan: free
     schedule: "*/10 * * * *"
-    buildCommand: "echo 'Keep alive service'"
-    startCommand: "curl https://infostore-api.onrender.com/api/products/"
+    startCommand: "curl -X GET https://infostore-api.onrender.com/api/products/"
