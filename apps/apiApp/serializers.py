@@ -1,7 +1,16 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
-from .models import Order, OrderItem, Product, Category, CartItem, Cart, Review, Wishlist
+from .models import (
+    Order,
+    OrderItem,
+    Product,
+    Category,
+    CartItem,
+    Cart,
+    Review,
+    Wishlist,
+)
 
 
 User = get_user_model()
@@ -178,7 +187,7 @@ class WishListSerializer(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product = ProductListSerializer(read_only=True)
-    
+
     class Meta:
         model = OrderItem
         fields = ["id", "product", "quantity", "price"]
@@ -186,13 +195,20 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
-    
+
     class Meta:
         model = Order
         fields = [
-            "id", "order_code", "status", "payment_method", 
-            "total_amount", "shipping_address", "notes", 
-            "created_at", "updated_at", "items"
+            "id",
+            "order_code",
+            "status",
+            "payment_method",
+            "total_amount",
+            "shipping_address",
+            "notes",
+            "created_at",
+            "updated_at",
+            "items",
         ]
 
 

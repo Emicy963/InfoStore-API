@@ -157,17 +157,17 @@ class Wishlist(models.Model):
 
 class Order(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Pendente'),
-        ('processing', 'Processando'),
-        ('shipped', 'Enviado'),
-        ('delivered', 'Entregue'),
-        ('cancelled', 'Cancelado'),
+        ("pending", "Pendente"),
+        ("processing", "Processando"),
+        ("shipped", "Enviado"),
+        ("delivered", "Entregue"),
+        ("cancelled", "Cancelado"),
     ]
-    
+
     PAYMENT_CHOICES = [
-        ('multicaixa', 'Multicaixa Express'),
-        ('transferencia', 'Transferência Bancária'),
-        ('dinheiro', 'Dinheiro na Entrega'),
+        ("multicaixa", "Multicaixa Express"),
+        ("transferencia", "Transferência Bancária"),
+        ("dinheiro", "Dinheiro na Entrega"),
     ]
 
     user = models.ForeignKey(
@@ -175,7 +175,7 @@ class Order(models.Model):
         on_delete=models.CASCADE,
         related_name="orders",
         blank=True,
-        null=True
+        null=True,
     )
     order_code = models.CharField(max_length=20, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
@@ -188,12 +188,15 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Pedido #{self.order_code}"
-    
+
     def save(self, *args, **kwargs):
         if not self.order_code:
             import random
             import string
-            self.order_code = "".join(random.choices(string.ascii_uppercase + string.digits, k=10))
+
+            self.order_code = "".join(
+                random.choices(string.ascii_uppercase + string.digits, k=10)
+            )
         super().save(*args, **kwargs)
 
 

@@ -7,7 +7,16 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.pagination import PageNumberPagination
-from .models import Order, OrderItem, Product, Category, Cart, CartItem, Review, Wishlist
+from .models import (
+    Order,
+    OrderItem,
+    Product,
+    Category,
+    Cart,
+    CartItem,
+    Review,
+    Wishlist,
+)
 from .serializers import (
     CreateOrderSerializer,
     CustomTokenObtainPairSerializer,
@@ -27,10 +36,9 @@ from .serializers import (
 User = get_user_model()
 
 
-
-#====================================
+# ====================================
 # AUTHENTICATION
-#====================================
+# ====================================
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
@@ -83,6 +91,7 @@ def get_user_profile(request, user_id):
         status=status.HTTP_403_FORBIDDEN,
     )
 
+
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def update_profile(request):
@@ -95,33 +104,31 @@ def update_profile(request):
             user.first_name = name_parts[0]
             if len(name_parts) > 1:
                 user.last_name = name_parts[1]
-        
+
         if "email" in data:
             if User.objects.exclude(pk=user.pk).filter(email=data["email"]).exists():
                 return Response(
                     {"error": "Este email já está em uso por outro usuário"},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
             user.email = data["email"]
-        
+
         if "phone" in data:
             user.phone_number = data["phone"]
-        
+
         if "address" in data and hasattr(user, "address"):
             user.address = data["address"]
-        
+
         if "city" in data and handle_cart(user, "city"):
             user.city = data["city"]
-        
+
         user.save()
 
         serializer = UserSerializer(user)
         return Response(serializer.data)
     except Exception as e:
-        return Response(
-            {"error": str(e)},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
@@ -133,32 +140,28 @@ def change_password(request):
 
         if not user.check_password(current_password):
             return Response(
-                {"error": "Senha atual incorrecta."},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Senha atual incorrecta."}, status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         if len(new_password) < 8:
             return Response(
                 {"error": "A senha deve ter pelo menos 8 caracteres."},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        
+
         user.set_password(new_password)
         user.save()
 
         return Response(
-            {"message": "Senha alterada com sucesso."},
-            status=status.HTTP_200_OK
+            {"message": "Senha alterada com sucesso."}, status=status.HTTP_200_OK
         )
     except Exception as e:
-        return Response(
-            {"error": str(e)},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-#====================================
+
+# ====================================
 # PRODUCT AND CATEGORY
-#====================================
+# ====================================
 class ProductPagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = "page_size"
@@ -213,9 +216,11 @@ def category_detail(request, slug):
             {"error": "Categoria não encontrado."}, status=status.HTTP_404_NOT_FOUND
         )
 
-#====================================
+
+# ====================================
 # CART AND REVIEWS
-#====================================
+# ====================================
+
 
 @api_view(["GET", "POST"])
 @permission_classes([AllowAny])
@@ -509,9 +514,10 @@ def delete_review(request, pk):
             {"error": "Avaliação não encontrada"}, status=status.HTTP_404_NOT_FOUND
         )
 
-#====================================
+
+# ====================================
 # WISHLIST
-#====================================
+# ====================================
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def add_to_wishlist(request):
@@ -559,9 +565,10 @@ def delete_wishlist_item(request, pk):
             {"error": "Wishlist item not found"}, status=status.HTTP_404_NOT_FOUND
         )
 
-#====================================
+
+# ====================================
 # Order
-#====================================
+# ====================================
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_order(request):
@@ -574,17 +581,16 @@ def create_order(request):
                 if not cart.cartitems.exists():
                     return Response(
                         {"error": "Seu carrinho está vazio."},
-                        status=status.HTTP_400_BAD_REQUEST
+                        status=status.HTTP_400_BAD_REQUEST,
                     )
             except Cart.DoesNotExist:
                 return Response(
                     {"error": "Carrinho não encontrado."},
-                    status=status.HTTP_404_NOT_FOUND
+                    status=status.HTTP_404_NOT_FOUND,
                 )
-            
+
             total = sum(
-                item.product.price * item.quantity
-                for item in cart.cartitems.all()
+                item.product.price * item.quantity for item in cart.cartitems.all()
             )
 
             order = Order.objects.create(
@@ -592,7 +598,7 @@ def create_order(request):
                 payment_method=serializer.validated_data["payment_method"],
                 total_amount=total,
                 shipping_address=serializer.validated_data["shipping_address"],
-                notes=serializer.validated_data["notes", ""]
+                notes=serializer.validated_data["notes", ""],
             )
 
             for item in cart.cartitems.all():
@@ -600,23 +606,19 @@ def create_order(request):
                     order=order,
                     product=item.product,
                     quantity=item.quantity,
-                    price=item.product.price
+                    price=item.product.price,
                 )
-            
+
             cart.cartitems.all().delete()
 
             return Response(
-                {
-                    "error": order.id,
-                    "message": "Pedido criado com sucesso."
-                }, status=status.HTTP_201_CREATED
+                {"error": order.id, "message": "Pedido criado com sucesso."},
+                status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        return Response(
-            {"error": str(e)},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -626,10 +628,8 @@ def get_user_orders(request):
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
     except Exception as e:
-        return Response(
-            {"error": str(e)},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -640,14 +640,11 @@ def get_order_detail(request, pk):
         return Response(serializer.data)
     except Order.DoesNotExist:
         return Response(
-            {"error": "Pedido não encontrado"},
-            status=status.HTTP_404_NOT_FOUND
+            {"error": "Pedido não encontrado"}, status=status.HTTP_404_NOT_FOUND
         )
     except Exception as e:
-        return Response(
-            {"error": str(e)},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
