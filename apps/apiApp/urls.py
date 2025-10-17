@@ -12,9 +12,8 @@ urlpatterns = [
     path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("auth/register/", views.register, name="register"),
     path("auth/logout/", views.logout, name="logout"),
-    path("auth/profile/<int:user_id>/", views.get_user_profile, name="user_profile"),
-    path("api/profile/", views.update_profile, name="update_profile"),
-    path("api/change-password/", views.change_password, name="change_password"),
+    path("auth/profile/", views.handle_profile, name="handle_profile"),
+    path("auth/change-password/", views.change_password, name="change_password"),
     # Cart
     path("cart/", views.handle_cart, name="get_cart"),
     path("cart/merge/", views.merge_carts, name="merge_carts"),
@@ -42,8 +41,8 @@ urlpatterns = [
     path("reviews/<int:pk>/delete/", views.delete_review, name="delete_review"),
     # Orders
     path("orders/create/", views.create_order, name="create_order"),
-    path("api/orders/", views.get_user_orders, name="get_user_orders"),
-    path("api/orders/<int:pk>/", views.get_order_detail, name="get_order_detail"),
+    path("orders/", views.get_user_orders, name="get_user_orders"),
+    path("orders/<int:pk>/", views.get_order_detail, name="get_order_detail"),
     # Search
     path("search/", views.product_search, name="search"),
 ]

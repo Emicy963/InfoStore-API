@@ -71,32 +71,21 @@ def logout(request):
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["GET"])
+@api_view(["GET", "PUT"])
 @permission_classes([IsAuthenticated])
-def get_user_profile(request, user_id):
-    try:
-        user_to_view = User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        return Response(
-            {"error": "Perfil não encontrado."}, status=status.HTTP_404_NOT_FOUND
-        )
+def handle_profile(request):
+    """
+    Endpoint unificado para o perfil do usuário logado.
+    - GET: Retorna os dados do perfil do usuário autenticado.
+    - PUT: Atualiza os dados do perfil do usuário autenticado.
+    """
+    user = request.user
 
-    # PERMISSIONS: Just the himself profile and admin can see the some profile
-    if request.user.id == user_to_view.id or request.user.is_staff:
-        serializer = UserSerializer(user_to_view)
+    if request.method == "GET":
+        serializer = UserSerializer(user)
         return Response(serializer.data)
 
-    return Response(
-        {"error": "Você não tem permissão para ver este perfil."},
-        status=status.HTTP_403_FORBIDDEN,
-    )
-
-
-@api_view(["PUT"])
-@permission_classes([IsAuthenticated])
-def update_profile(request):
-    try:
-        user = request.user
+    elif request.method == "PUT":
         data = request.data
 
         if "name" in data:
@@ -119,15 +108,13 @@ def update_profile(request):
         if "address" in data and hasattr(user, "address"):
             user.address = data["address"]
 
-        if "city" in data and handle_cart(user, "city"):
+        if "city" in data and hasattr(user, "city"):
             user.city = data["city"]
 
         user.save()
 
         serializer = UserSerializer(user)
         return Response(serializer.data)
-    except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -598,7 +585,7 @@ def create_order(request):
                 payment_method=serializer.validated_data["payment_method"],
                 total_amount=total,
                 shipping_address=serializer.validated_data["shipping_address"],
-                notes=serializer.validated_data["notes", ""],
+                notes=serializer.validated_data["notes"],
             )
 
             for item in cart.cartitems.all():
@@ -612,7 +599,7 @@ def create_order(request):
             cart.cartitems.all().delete()
 
             return Response(
-                {"error": order.id, "message": "Pedido criado com sucesso."},
+                {"id": order.id, "message": "Pedido criado com sucesso."},
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
