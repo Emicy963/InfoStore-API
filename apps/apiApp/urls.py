@@ -13,6 +13,8 @@ urlpatterns = [
     path("auth/register/", views.register, name="register"),
     path("auth/logout/", views.logout, name="logout"),
     path("auth/profile/<int:user_id>/", views.get_user_profile, name="user_profile"),
+    path("api/profile/", views.update_profile, name="update_profile"),
+    path("api/change-password/", views.change_password, name="change_password"),
     # Cart
     path("cart/", views.handle_cart, name="get_cart"),
     path("cart/merge/", views.merge_carts, name="merge_carts"),
