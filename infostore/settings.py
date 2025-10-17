@@ -186,6 +186,7 @@ SIMPLE_JWT = {
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    env("FRONTEND_URL")
 ]
 
 # For permited credentials (cookies, authentication headers)
