@@ -194,3 +194,9 @@ class OrderSerializer(serializers.ModelSerializer):
             "total_amount", "shipping_address", "notes", 
             "created_at", "updated_at", "items"
         ]
+
+
+class CreateOrderSerializer(serializers.Serializer):
+    shipping_address = serializers.JSONField()
+    payment_method = serializers.CharField()
+    notes = serializers.CharField(required=False, allow_blank=True)
