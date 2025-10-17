@@ -7,8 +7,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.pagination import PageNumberPagination
-from .models import Product, Category, Cart, CartItem, Review, Wishlist
+from .models import Order, OrderItem, Product, Category, Cart, CartItem, Review, Wishlist
 from .serializers import (
+    CreateOrderSerializer,
     CustomTokenObtainPairSerializer,
     ProductListSerializer,
     ProductDetailSerializer,
@@ -483,6 +484,65 @@ def delete_wishlist_item(request, pk):
     except Wishlist.DoesNotExist:
         return Response(
             {"error": "Wishlist item not found"}, status=status.HTTP_404_NOT_FOUND
+        )
+
+#====================================
+# Order
+#====================================
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_order(request):
+    try:
+        serializer = CreateOrderSerializer(data=request.data)
+        if serializer.is_valid():
+            # Get user cart
+            try:
+                cart = Cart.objects.get(user=request.user)
+                if not cart.cartitems.exists():
+                    return Response(
+                        {"error": "Seu carrinho está vazio."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            except Cart.DoesNotExist:
+                return Response(
+                    {"error": "Carrinho não encontrado."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            total = sum(
+                item.product.price * item.quantity
+                for item in cart.cartitems.all()
+            )
+
+            order = Order.objects.create(
+                user=request.user,
+                payment_method=serializer.validated_data["payment_method"],
+                total_amount=total,
+                shipping_address=serializer.validated_data["shipping_address"],
+                notes=serializer.validated_data["notes", ""]
+            )
+
+            for item in cart.cartitems.all():
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price=item.product.price
+                )
+            
+            cart.cartitems.all().delete()
+
+            return Response(
+                {
+                    "error": order.id,
+                    "message": "Pedido criado com sucesso."
+                }, status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
 
