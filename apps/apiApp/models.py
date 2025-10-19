@@ -58,6 +58,10 @@ class Product(models.Model):
     average_rating = models.FloatField(default=0.0)
     total_reviews = models.PositiveIntegerField(default=0)
 
+    class Meta:
+        ordering = ["-id"]
+        # ordering = ["-average_rating"]
+
     def __str__(self):
         return self.name
 
@@ -84,6 +88,15 @@ class Cart(models.Model):
     cart_code = models.CharField(max_length=11, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user"],
+                condition=models.Q(user__isnull=False),
+                name="unique_user_cart"
+            )
+        ]
 
     def __str__(self):
         return self.cart_code

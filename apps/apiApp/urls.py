@@ -15,9 +15,9 @@ urlpatterns = [
     path("auth/profile/", views.handle_profile, name="handle_profile"),
     path("auth/change-password/", views.change_password, name="change_password"),
     # Cart
-    path("cart/", views.handle_cart, name="get_cart"),
-    path("cart/merge/", views.merge_carts, name="merge_carts"),
+    path("cart/", views.handle_cart, name="handle_cart"),
     path("cart/add/", views.add_to_cart, name="add_to_cart"),
+    path("cart/merge/", views.merge_carts, name="merge_carts"),
     path(
         "cart/update/", views.update_cartitem_quantity, name="update_cartitem_quantity"
     ),

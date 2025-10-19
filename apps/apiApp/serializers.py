@@ -33,6 +33,16 @@ class RegistrationSerializer(serializers.ModelSerializer):
             "bi",
         ]
 
+    def validate_bi(self, value):
+        """Validar BI apenas se fornecido"""
+        if not value or value.strip() == '':
+            return None
+
+        if User.objects.filter(bi=value).exists():
+            raise serializers.ValidationError("Este BI já está registrado.")
+        
+        return value
+
     def validate(self, attrs):
         email = attrs.get("email")
         username = attrs.get("username")
@@ -47,6 +57,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop("confirm_password")
+        
+        if validated_data.get('bi') is None:
+            validated_data.pop('bi', None)
+        
+        if not validated_data.get('phone_number'):
+            validated_data.pop('phone_number', None)
+            
         user = User.objects.create_user(**validated_data)
         return user
 
@@ -79,18 +96,30 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    phone = serializers.CharField(source='phone_number', allow_blank=True, allow_null=True)
+    
     class Meta:
         model = User
         fields = [
             "id",
             "username",
+            "name",
             "first_name",
             "last_name",
             "email",
-            "phone_number",
+            "phone",
             "bi",
             "avatar_url",
+            "address",
+            "city",
+            "country",
         ]
+    
+    def get_name(self, obj):
+        """Retorna o nome completo ou username"""
+        full_name = obj.get_full_name()
+        return full_name if full_name.strip() else obj.username
 
 
 class ProductListSerializer(serializers.ModelSerializer):
