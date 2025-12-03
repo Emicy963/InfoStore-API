@@ -10,11 +10,6 @@ urlpatterns = [
         "cart/update/", views.update_cartitem_quantity, name="update_cartitem_quantity"
     ),
     path("cart/item/<int:pk>/delete/", views.delete_cartitem, name="delete_cartitem"),
-    # Product and Category
-    path("products/", views.product_list, name="product_list"),
-    path("products/<slug:slug>/", views.product_detail, name="product_detail"),
-    path("categories/", views.category_list, name="category_list"),
-    path("categories/<slug:slug>/", views.category_detail, name="category_detail"),
     # Wishlist
     path("wishlist/", views.get_user_wishlist, name="get_user_wishlist"),
     path(
