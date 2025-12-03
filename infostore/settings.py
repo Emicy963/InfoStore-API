@@ -37,6 +37,7 @@ THIRDS_APPS = [
 
 LOCAL_APPS = [
     "apps.apiApp",
+    "apps.accounts",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRDS_APPS + LOCAL_APPS
@@ -134,7 +135,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Custom user model
-AUTH_USER_MODEL = "apiApp.CustomUser"
+AUTH_USER_MODEL = "accounts.CustomUser"
 APPEND_SLASH = False
 
 # Django REST Framework
@@ -179,7 +180,7 @@ SIMPLE_JWT = {
 
 # CORS settings
 
-FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")
+FRONTEND_URL = os.getenv("FRONTEND_URL", default="http://localhost:3000")
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
