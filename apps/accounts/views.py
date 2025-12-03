@@ -24,3 +24,18 @@ def register(request):
             status=status.HTTP_201_CREATED,
         )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    try:
+        refresh_token = request.data.get("refresh")
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        return Response(
+            {"message": "Succesfully logged out"}, status=status.HTTP_200_OK
+        )
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
