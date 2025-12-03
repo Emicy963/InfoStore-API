@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CartItem
+from .models import Cart, CartItem
 from apps.products.serializers import ProductListSerializer
 
 
@@ -13,4 +13,18 @@ class CartItemSerializer(serializers.ModelSerializer):
 
     def get_sub_total(self, obj):
         total = obj.product.price * obj.quantity
+        return total
+
+
+class CartSerializer(serializers.ModelSerializer):
+    cartitems = CartItemSerializer(read_only=True, many=True)
+    cart_total = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Cart
+        fields = ["id", "cart_code", "cartitems", "cart_total"]
+
+    def get_cart_total(self, cart):
+        items = cart.cartitems.all()
+        total = sum([item.quantity * item.product.price for item in items])
         return total
