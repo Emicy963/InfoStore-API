@@ -13,9 +13,6 @@ from .models import (
 from apps.accounts.serializers import UserSerializer
 
 
-User = get_user_model()
-
-
 class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
