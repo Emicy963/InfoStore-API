@@ -10,6 +10,7 @@ from .models import (
     Review,
     Wishlist,
 )
+from apps.accounts.serializers import UserSerializer
 
 
 User = get_user_model()
