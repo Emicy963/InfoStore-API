@@ -15,3 +15,9 @@ class ProductListSerializer(serializers.ModelSerializer):
             "average_rating",
             "total_reviews",
         ]
+
+
+class ProductDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ["id", "name", "slug", "description", "image", "price"]
