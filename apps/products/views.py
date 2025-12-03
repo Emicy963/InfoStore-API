@@ -4,7 +4,12 @@ from rest_framework.permissions import AllowAny
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from .models import Category, Product
-from .serializers import CategoryListSerialiizer, ProductDetailSerializer, ProductListSerializer
+from .serializers import (
+    CategoryDetailSerialiizer,
+    CategoryListSerialiizer,
+    ProductDetailSerializer,
+    ProductListSerializer,
+)
 
 
 class ProductPagination(PageNumberPagination):
@@ -46,4 +51,17 @@ def category_list(request):
     except Category.DoesNotExist:
         Response(
             {"error": "Categorias não encontrado."}, status=status.HTTP_404_NOT_FOUND
+        )
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def category_detail(request, slug):
+    try:
+        category = Category.objects.get(slug=slug)
+        serializer = CategoryDetailSerialiizer(category)
+        return Response(serializer.data)
+    except Category.DoesNotExist:
+        return Response(
+            {"error": "Categoria não encontrado."}, status=status.HTTP_404_NOT_FOUND
         )
