@@ -18,21 +18,27 @@ DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
 # Application definition
-INSTALLED_APPS = [
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Third party apps
+]
+
+THIRDS_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
     "axes",
-    # Local Apps
+]
+
+LOCAL_APPS = [
     "apps.apiApp",
 ]
+
+INSTALLED_APPS = DJANGO_APPS + THIRDS_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -96,8 +102,8 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # Internationalization
-LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
+LANGUAGE_CODE = "pt-ao"
+TIME_ZONE = "Africa/Luanda"
 USE_I18N = True
 USE_TZ = True
 
