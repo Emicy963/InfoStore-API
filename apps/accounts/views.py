@@ -10,6 +10,7 @@ from .serializers import (
     UserSerializer,
 )
 
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 

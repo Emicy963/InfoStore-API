@@ -31,9 +31,6 @@ from .serializers import (
 User = get_user_model()
 
 
-
-
-
 # ====================================
 # PRODUCT AND CATEGORY
 # ====================================

@@ -1,19 +1,7 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
 
 urlpatterns = [
-    # Authentication
-    path(
-        "auth/token/",
-        views.CustomTokenObtainPairView.as_view(),
-        name="token_obtain_pair",
-    ),
-    path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("auth/register/", views.register, name="register"),
-    path("auth/logout/", views.logout, name="logout"),
-    path("auth/profile/", views.handle_profile, name="handle_profile"),
-    path("auth/change-password/", views.change_password, name="change_password"),
     # Cart
     path("cart/", views.handle_cart, name="handle_cart"),
     path("cart/add/", views.add_to_cart, name="add_to_cart"),
