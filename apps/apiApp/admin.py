@@ -10,11 +10,7 @@ from .models import (
 )
 
 
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ["name", "price", "featured"]
 
-
-admin.site.register(Product, ProductAdmin)
 
 
 class CategoryAdmin(admin.ModelAdmin):
