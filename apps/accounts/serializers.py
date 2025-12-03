@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 
 
@@ -54,3 +55,29 @@ class RegistrationSerializer(serializers.ModelSerializer):
             
         user = User.objects.create_user(**validated_data)
         return user
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        # The field 'username' on request and be username or email
+        identifier = attrs.get("username")
+        password = attrs.get("password")
+
+        # Try email first
+        if identifier and password:
+            try:
+                user_obj = User.objects.get(email=identifier)
+                attrs["username"] = (
+                    user_obj.username
+                )  # Chance the real username for father validation
+            except User.DoesNotExist:
+                # If don't found, use the username
+                pass
+
+        data = super().validate(attrs)
+        data["user"] = {
+            "id": self.user.id,
+            "email": self.user.email,
+            "username": self.user.username,
+            "name": self.user.get_full_name() or self.user.username,
+        }
+        return data
