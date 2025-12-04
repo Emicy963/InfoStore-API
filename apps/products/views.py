@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from django.db.models import Q
 from .models import Category, Product
 from .serializers import (
     CategoryDetailSerialiizer,
@@ -65,3 +66,23 @@ def category_detail(request, slug):
         return Response(
             {"error": "Categoria não encontrado."}, status=status.HTTP_404_NOT_FOUND
         )
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def product_search(request):
+    query = request.query_params.get("query")
+    if not query:
+        return Response({"error": "Nenhuma consulta fornecida"}, status=400)
+
+    products = Product.objects.filter(
+        Q(name__icontains=query)
+        | Q(description__icontains=query)
+        | Q(category__name__icontains=query)
+    ).select_related("category")
+
+    paginator = ProductPagination()
+    result_page = paginator.paginate_queryset(products, request)
+
+    serializer = ProductListSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
