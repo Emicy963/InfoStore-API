@@ -36,7 +36,6 @@ THIRDS_APPS = [
 ]
 
 LOCAL_APPS = [
-    "apps.apiApp",
     "apps.accounts",
     "apps.products",
     "apps.cart",
