@@ -2,8 +2,9 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from .models import Cart
+from .models import Cart, CartItem
 from .serializers import CartSerializer
+from apps.products.models import Product
 
 
 @api_view(["GET", "POST"])
@@ -74,3 +75,41 @@ def handle_cart(request):
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def add_to_cart(request):
+    cart_code = request.data.get("cart_code")
+    product_id = request.data.get("product_id")
+    quantity = request.data.get("quantity", 1)
+
+    try:
+        # Buscar ou criar o carrinho
+        cart = Cart.objects.get(cart_code=cart_code)
+        product = Product.objects.get(id=product_id)
+
+        # Buscar ou criar o item do carrinho
+        cartitem, created = CartItem.objects.get_or_create(
+            product=product, cart=cart, defaults={"quantity": 0}
+        )
+
+        if created:
+            cartitem.quantity = quantity
+        else:
+            cartitem.quantity += quantity
+
+        cartitem.save()
+
+        serializer = CartSerializer(cart)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Cart.DoesNotExist:
+        return Response(
+            {"error": "Carrinho não encontrado."}, status=status.HTTP_404_NOT_FOUND
+        )
+    except Product.DoesNotExist:
+        return Response(
+            {"error": "Produto não encontrado."}, status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
