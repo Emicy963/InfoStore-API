@@ -11,7 +11,7 @@ from .serializers import CartSerializer
 def handle_cart(request):
     """
     Endpoint unify for create and get cart.
-    - POST: Create a cart (anonumos or user).
+    - POST: Create a cart (anonymos or user).
     - GET: Get cart (anonymos with ?code= or auth user).
     """
     if request.method == "POST":
