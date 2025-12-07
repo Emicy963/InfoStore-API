@@ -35,7 +35,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         email = attrs.get("email")
-        username = attr.get("username")
+        username = attrs.get("username")
 
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError("Este email já está em uso.")
@@ -43,6 +43,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Este nome de usuário já está em uso.")
         if attrs["password"] != attrs["confirm_password"]:
             raise serializers.ValidationError("As palavras-passes não são iguais.")
+        
+        return attrs
 
     def create(self, validated_data):
         validated_data.pop("confirm_password")
