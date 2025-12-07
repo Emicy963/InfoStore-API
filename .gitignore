@@ -1,21 +1,60 @@
-# Arquivos de Python
+# Python
 *.pyc
 __pycache__/
+*.py[cod]
+*$py.class
+*.so
 
-# Ambiente Virtual
-.venv/
-
-# Configurações do Sistema
-*.db
-*.sqlite3
+# Django
 *.log
-*.env
-*.json
-
-# Arquivos de Mídia
+debug.log
+db.sqlite3
+db.sqlite3-journal
 media/
-*.jpg
-*.png
+staticfiles/
 
-# Arquivos de migração
-migrations/
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.cover
+.hypothesis/
+.tox/
+
+# Environment
+.env
+.env.local
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# NOTE: Migrations SHOULD be tracked in version control!
+# Do NOT add migrations/ to gitignore
