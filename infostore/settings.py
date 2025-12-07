@@ -124,9 +124,6 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-    "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
@@ -257,11 +254,6 @@ LOGGING = {
         "django": {
             "handlers": ["file", "console"],
             "level": "INFO",
-            "propagate": True,
-        },
-        "apps.apiApp": {
-            "handlers": ["file", "console"],
-            "level": "DEBUG",
             "propagate": True,
         },
     },
