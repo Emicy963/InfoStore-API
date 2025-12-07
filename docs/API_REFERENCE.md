@@ -5,8 +5,8 @@ Complete API reference for InfoStore E-commerce API.
 ## Base URL
 
 ```
-Production: https://infostore-api.onrender.com/api
-Development: http://localhost:8000/api
+Production: https://infostore-api.onrender.com/api/v2
+Development: http://localhost:8000/api/v2
 ```
 
 ## Authentication
@@ -30,7 +30,7 @@ Authorization: Bearer <your_access_token>
 
 Create a new user account.
 
-**Endpoint:** `POST /auth/register/`
+**Endpoint:** `POST /api/v2/auth/register/`
 
 **Authentication:** Not required
 
@@ -71,7 +71,7 @@ Create a new user account.
 
 Authenticate and receive JWT tokens.
 
-**Endpoint:** `POST /auth/token/`
+**Endpoint:** `POST /api/v2/auth/token/`
 
 **Authentication:** Not required
 
@@ -122,7 +122,7 @@ You can also use email instead of username:
 
 Get a new access token using refresh token.
 
-**Endpoint:** `POST /auth/token/refresh/`
+**Endpoint:** `POST /api/v2/auth/token/refresh/`
 
 **Authentication:** Not required
 
@@ -149,7 +149,7 @@ Get a new access token using refresh token.
 
 Blacklist the refresh token.
 
-**Endpoint:** `POST /auth/logout/`
+**Endpoint:** `POST /api/v2/auth/logout/`
 
 **Authentication:** Required
 
@@ -175,7 +175,7 @@ Blacklist the refresh token.
 
 Retrieve authenticated user's profile.
 
-**Endpoint:** `GET /auth/profile/`
+**Endpoint:** `GET /api/v2/auth/profile/`
 
 **Authentication:** Required
 
@@ -200,7 +200,7 @@ Retrieve authenticated user's profile.
 
 Update authenticated user's profile.
 
-**Endpoint:** `PUT /auth/profile/`
+**Endpoint:** `PUT /api/v2/auth/profile/`
 
 **Authentication:** Required
 
@@ -237,7 +237,7 @@ Update authenticated user's profile.
 
 Change authenticated user's password.
 
-**Endpoint:** `POST /auth/change-password/`
+**Endpoint:** `POST /api/v2/auth/change-password/`
 
 **Authentication:** Required
 
@@ -274,7 +274,7 @@ Change authenticated user's password.
 
 Get paginated list of featured products.
 
-**Endpoint:** `GET /products/`
+**Endpoint:** `GET /api/v2/product/`
 
 **Authentication:** Not required
 
@@ -311,7 +311,7 @@ Get paginated list of featured products.
 
 Get detailed information about a specific product.
 
-**Endpoint:** `GET /products/{slug}/`
+**Endpoint:** `GET /api/v2/product/{slug}/`
 
 **Authentication:** Not required
 
@@ -342,7 +342,7 @@ Get detailed information about a specific product.
 
 Search products by name, description, or category.
 
-**Endpoint:** `GET /search/`
+**Endpoint:** `GET /api/v2/product/search/`
 
 **Authentication:** Not required
 
@@ -384,7 +384,7 @@ Search products by name, description, or category.
 
 Get all product categories.
 
-**Endpoint:** `GET /categories/`
+**Endpoint:** `GET /api/v2/product/categories/`
 
 **Authentication:** Not required
 
@@ -413,7 +413,7 @@ Get all product categories.
 
 Get category details with all its products.
 
-**Endpoint:** `GET /categories/{slug}/`
+**Endpoint:** `GET /api/v2/product/categories/{slug}/`
 
 **Authentication:** Not required
 
@@ -447,7 +447,7 @@ Get category details with all its products.
 
 Create a new cart (for anonymous or authenticated users).
 
-**Endpoint:** `POST /cart/`
+**Endpoint:** `POST /api/v2/cart/`
 
 **Authentication:** Optional
 
@@ -473,7 +473,7 @@ Create a new cart (for anonymous or authenticated users).
 
 Retrieve cart by code (anonymous) or user (authenticated).
 
-**Endpoint:** `GET /cart/`
+**Endpoint:** `GET /api/v2/cart/`
 
 **Authentication:** Optional
 
@@ -519,7 +519,7 @@ Retrieve cart by code (anonymous) or user (authenticated).
 
 Add a product to cart.
 
-**Endpoint:** `POST /cart/add/`
+**Endpoint:** `POST /api/v2/cart/add/`
 
 **Authentication:** Not required
 
@@ -550,7 +550,7 @@ Add a product to cart.
 
 Update quantity of a cart item.
 
-**Endpoint:** `PUT /cart/update/`
+**Endpoint:** `PUT /api/v2/cart/update/`
 
 **Authentication:** Required
 
@@ -583,7 +583,7 @@ Update quantity of a cart item.
 
 Remove an item from cart.
 
-**Endpoint:** `DELETE /cart/item/{id}/delete/`
+**Endpoint:** `DELETE /api/v2/cart/item/{id}/delete/`
 
 **Authentication:** Required
 
@@ -601,7 +601,7 @@ Remove an item from cart.
 
 Merge anonymous cart into user cart after login.
 
-**Endpoint:** `POST /cart/merge/`
+**Endpoint:** `POST /api/v2/cart/merge/`
 
 **Authentication:** Required
 
@@ -632,7 +632,7 @@ Merge anonymous cart into user cart after login.
 
 Add a review for a product.
 
-**Endpoint:** `POST /reviews/add/`
+**Endpoint:** `POST /api/v2/review/add/`
 
 **Authentication:** Required
 
@@ -684,7 +684,7 @@ Add a review for a product.
 
 Update an existing review.
 
-**Endpoint:** `PUT /reviews/{id}/update/`
+**Endpoint:** `PUT /api/v2/review/{id}/update/`
 
 **Authentication:** Required (must be review owner or staff)
 
@@ -716,7 +716,7 @@ Update an existing review.
 
 Delete a review.
 
-**Endpoint:** `DELETE /reviews/{id}/delete/`
+**Endpoint:** `DELETE /api/v2/review/{id}/delete/`
 
 **Authentication:** Required (must be review owner or staff)
 
@@ -736,7 +736,7 @@ Delete a review.
 
 Retrieve authenticated user's wishlist.
 
-**Endpoint:** `GET /wishlist/`
+**Endpoint:** `GET /api/v2/wishlist/`
 
 **Authentication:** Required
 
@@ -777,7 +777,7 @@ Retrieve authenticated user's wishlist.
 
 Add or remove a product from wishlist. If product is already in wishlist, it will be removed.
 
-**Endpoint:** `POST /wishlist/add/`
+**Endpoint:** `POST /api/v2/wishlist/add/`
 
 **Authentication:** Required
 
@@ -814,7 +814,7 @@ Add or remove a product from wishlist. If product is already in wishlist, it wil
 
 Remove a specific item from wishlist.
 
-**Endpoint:** `DELETE /wishlist/{id}/delete/`
+**Endpoint:** `DELETE /api/v2/wishlist/{id}/delete/`
 
 **Authentication:** Required
 
@@ -828,7 +828,7 @@ Remove a specific item from wishlist.
 
 Create an order from user's cart.
 
-**Endpoint:** `POST /orders/create/`
+**Endpoint:** `POST /api/v2/order/create/`
 
 **Authentication:** Required
 
@@ -877,7 +877,7 @@ Create an order from user's cart.
 
 Retrieve all orders for authenticated user.
 
-**Endpoint:** `GET /orders/`
+**Endpoint:** `GET /api/v2/order/`
 
 **Authentication:** Required
 
@@ -936,7 +936,7 @@ Retrieve all orders for authenticated user.
 
 Retrieve details of a specific order.
 
-**Endpoint:** `GET /orders/{id}/`
+**Endpoint:** `GET /api/v2/order/{id}/`
 
 **Authentication:** Required
 

@@ -80,12 +80,12 @@ python manage.py runserver
 ### Step 5: Test the API
 
 ```bash
-# API is running at: http://localhost:8000/api/
+# API is running at: http://localhost:8000/api/v2/
 
 # Test endpoints:
-# Products: http://localhost:8000/api/products/
-# Categories: http://localhost:8000/api/categories/
-# Register: POST http://localhost:8000/api/auth/register/
+# Products: http://localhost:8000/api/v2/product/
+# Categories: http://localhost:8000/api/v2/product/categories/
+# Register: POST http://localhost:8000/api/v2/auth/register/
 ```
 
 ---
@@ -167,14 +167,14 @@ If using manual setup (not blueprint):
 2. Update the start command with your actual URL:
 
    ```bash
-   curl https://infostore-api.onrender.com/api/products/
+   curl https://infostore-api.onrender.com/api/v2/product/
    ```
 
 ### Step 7: Test Production API
 
 ```bash
 # Test your live API
-curl https://infostore-api.onrender.com/api/products/
+curl https://infostore-api.onrender.com/api/v2/product/
 
 # Expected response: List of products with pagination
 ```
@@ -247,7 +247,7 @@ CORS_ALLOWED_ORIGINS = [
 ```bash
 python manage.py shell
 
-from apps.apiApp.models import Category, Product
+from apps.products.models import Category, Product
 
 # Create category
 category = Category.objects.create(name="Electronics")
@@ -266,7 +266,7 @@ Product.objects.create(
 
 ```bash
 # Register a user
-curl -X POST http://localhost:8000/api/auth/register/ \
+curl -X POST http://localhost:8000/api/v2/auth/register/ \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testuser",
@@ -278,7 +278,7 @@ curl -X POST http://localhost:8000/api/auth/register/ \
   }'
 
 # Login
-curl -X POST http://localhost:8000/api/auth/token/ \
+curl -X POST http://localhost:8000/api/v2/auth/token/ \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testuser",
@@ -295,7 +295,7 @@ curl -X POST http://localhost:8000/api/auth/token/ \
 - type: cron
   name: infostore-keepalive
   schedule: "*/10 * * * *"
-  startCommand: "curl https://your-app.onrender.com/api/products/"
+  startCommand: "curl https://your-app.onrender.com/api/v2/product/"
 ```
 
 **Option B: UptimeRobot (Free alternative)**  
@@ -303,7 +303,7 @@ curl -X POST http://localhost:8000/api/auth/token/ \
 1. Sign up at [uptimerobot.com](https://uptimerobot.com)
 2. Add new monitor:
    - Type: HTTP(s)
-   - URL: `https://your-app.onrender.com/api/products/`
+   - URL: `https://your-app.onrender.com/api/v2/product/`
    - Interval: 5 minutes
 
 ### 4. Update Frontend
@@ -313,8 +313,8 @@ Update your frontend to use the production API:
 ```javascript
 // In your frontend config
 const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'https://infostore-api.onrender.com/api'
-  : 'http://localhost:8000/api';
+  ? 'https://infostore-api.onrender.com/api/v2'
+  : 'http://localhost:8000/api/v2';
 ```
 
 ---
@@ -369,8 +369,8 @@ Before going live:
 
 Your InfoStore API is now running! Start building your e-commerce frontend or mobile app.
 
-**API Base URL (Local):** `http://localhost:8000/api/`  
-**API Base URL (Production):** `https://infostore-api.onrender.com/api/`
+**API Base URL (Local):** `http://localhost:8000/api/v2/`  
+**API Base URL (Production):** `https://infostore-api.onrender.com/api/v2/`
 
 **Admin Panel:** `http://localhost:8000/admin/`
 
