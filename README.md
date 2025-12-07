@@ -2,10 +2,14 @@
 
 A modern and robust REST API for e-commerce applications built with Django and Django REST Framework.
 
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
 ![Django](https://img.shields.io/badge/Django-4.2-092E20?style=for-the-badge&logo=django&logoColor=white)
 ![DRF](https://img.shields.io/badge/DRF-3.15-ff1709?style=for-the-badge&logo=django&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-Auth-000000?style=for-the-badge&logo=json-web-tokens&logoColor=white)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+> 📝 **Novidades da v2.0**: Confira todas as mudanças no [CHANGELOG.md](docs/CHANGELOG.md)
 
 ## 📋 Table of Contents
 
@@ -97,15 +101,15 @@ A modern and robust REST API for e-commerce applications built with Django and D
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/emicy963/infostore-api.git
+git clone https://github.com/Emicy963/infostore-api.git
 cd infostore
 ```
 
 2. **Create and activate virtual environment**
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 ```
 
 3. **Install dependencies**
@@ -143,77 +147,77 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-The API will be available at `http://localhost:8000/api/v1/`
+The API will be available at `http://localhost:8000/api/v2/`
 
 ## 📚 API Documentation
 
 ### Base URL
 
-```bash
-http://localhost:8000/api/
+```
+http://localhost:8000/api/v2/
 ```
 
 ### Authentication Endpoints
 
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| POST | `/auth/register/` | Register new user | No |
-| POST | `/auth/token/` | Login (obtain tokens) | No |
-| POST | `/auth/token/refresh/` | Refresh access token | No |
-| POST | `/auth/logout/` | Logout (blacklist token) | Yes |
-| GET | `/auth/profile/` | Get user profile | Yes |
-| PUT | `/auth/profile/` | Update user profile | Yes |
-| POST | `/auth/change-password/` | Change password | Yes |
+| POST | `/api/v2/auth/register/` | Register new user | No |
+| POST | `/api/v2/auth/token/` | Login (obtain tokens) | No |
+| POST | `/api/v2/auth/token/refresh/` | Refresh access token | No |
+| POST | `/api/v2/auth/logout/` | Logout (blacklist token) | Yes |
+| GET | `/api/v2/auth/profile/` | Get user profile | Yes |
+| PUT | `/api/v2/auth/profile/` | Update user profile | Yes |
+| POST | `/api/v2/auth/change-password/` | Change password | Yes |
 
 ### Product Endpoints
 
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| GET | `/products/` | List featured products | No |
-| GET | `/products/{slug}/` | Get product details | No |
-| GET | `/search/?query=` | Search products | No |
+| GET | `/api/v2/product/` | List featured products | No |
+| GET | `/api/v2/product/{slug}/` | Get product details | No |
+| GET | `/api/v2/product/search/?query=` | Search products | No |
 
 ### Category Endpoints
 
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| GET | `/categories/` | List all categories | No |
-| GET | `/categories/{slug}/` | Get category with products | No |
+| GET | `/api/v2/product/categories/` | List all categories | No |
+| GET | `/api/v2/product/categories/{slug}/` | Get category with products | No |
 
 ### Cart Endpoints
 
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| POST | `/cart/` | Create cart | No |
-| GET | `/cart/` | Get cart (user or by code) | No |
-| POST | `/cart/add/` | Add item to cart | No |
-| PUT | `/cart/update/` | Update cart item quantity | Yes |
-| DELETE | `/cart/item/{id}/delete/` | Remove cart item | Yes |
-| POST | `/cart/merge/` | Merge anonymous cart to user | Yes |
+| POST | `/api/v2/cart/` | Create cart | No |
+| GET | `/api/v2/cart/` | Get cart (user or by code) | No |
+| POST | `/api/v2/cart/add/` | Add item to cart | No |
+| PUT | `/api/v2/cart/update/` | Update cart item quantity | Yes |
+| DELETE | `/api/v2/cart/item/{id}/delete/` | Remove cart item | Yes |
+| POST | `/api/v2/cart/merge/` | Merge anonymous cart to user | Yes |
 
 ### Review Endpoints
 
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| POST | `/reviews/add/` | Add product review | Yes |
-| PUT | `/reviews/{id}/update/` | Update review | Yes |
-| DELETE | `/reviews/{id}/delete/` | Delete review | Yes |
+| POST | `/api/v2/review/add/` | Add product review | Yes |
+| PUT | `/api/v2/review/{id}/update/` | Update review | Yes |
+| DELETE | `/api/v2/review/{id}/delete/` | Delete review | Yes |
 
 ### Wishlist Endpoints
 
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| GET | `/wishlist/` | Get user wishlist | Yes |
-| POST | `/wishlist/add/` | Toggle wishlist item | Yes |
-| DELETE | `/wishlist/{id}/delete/` | Remove from wishlist | Yes |
+| GET | `/api/v2/wishlist/` | Get user wishlist | Yes |
+| POST | `/api/v2/wishlist/add/` | Toggle wishlist item | Yes |
+| DELETE | `/api/v2/wishlist/{id}/delete/` | Remove from wishlist | Yes |
 
 ### Order Endpoints
 
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| POST | `/orders/create/` | Create order from cart | Yes |
-| GET | `/orders/` | Get user orders | Yes |
-| GET | `/orders/{id}/` | Get order details | Yes |
+| POST | `/api/v2/order/create/` | Create order from cart | Yes |
+| GET | `/api/v2/order/` | Get user orders | Yes |
+| GET | `/api/v2/order/{id}/` | Get order details | Yes |
 
 ### Example Requests
 
@@ -235,7 +239,7 @@ curl -X POST http://localhost:8000/api/auth/register/ \
 **Login**  
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/auth/token/ \
+curl -X POST http://localhost:8000/api/v2/auth/token/ \
   -H "Content-Type: application/json" \
   -d '{
     "username": "johndoe",
@@ -246,13 +250,13 @@ curl -X POST http://localhost:8000/api/v1/auth/token/ \
 **Get Products**  
 
 ```bash
-curl http://localhost:8000/api/vi/products/
+curl http://localhost:8000/api/v2/product/
 ```
 
 **Add to Cart**  
 
 ```bash
-curl -X POST http://localhost:8000/api/vi/cart/add/ \
+curl -X POST http://localhost:8000/api/v2/cart/add/ \
   -H "Content-Type: application/json" \
   -d '{
     "cart_code": "abc123xyz",
@@ -299,31 +303,139 @@ Alternatively, you can use **UptimeRobot**:
 ```
 infostore/
 ├── apps/
-│   └── apiApp/
+│   ├── accounts/          # User authentication & profiles
+│   │   ├── migrations/
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py      # CustomUser model
+│   │   ├── serializers.py # Registration, Profile, Token serializers
+│   │   ├── tests.py       # 21 unit tests
+│   │   ├── urls.py        # Auth endpoints
+│   │   └── views.py       # Register, login, profile, logout
+│   │
+│   ├── products/          # Product catalog & categories
+│   │   ├── migrations/
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py      # Product, Category models
+│   │   ├── serializers.py # Product, Category serializers
+│   │   ├── tests.py       # 17 unit tests
+│   │   ├── urls.py        # Product, category, search endpoints
+│   │   └── views.py       # List, detail, search views
+│   │
+│   ├── cart/              # Shopping cart management
+│   │   ├── migrations/
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py      # Cart, CartItem models
+│   │   ├── serializers.py # Cart serializers
+│   │   ├── tests.py       # 20 unit tests
+│   │   ├── urls.py        # Cart endpoints
+│   │   └── views.py       # Add, update, delete, merge cart
+│   │
+│   ├── orders/            # Order processing
+│   │   ├── migrations/
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py      # Order, OrderItem models
+│   │   ├── serializers.py # Order serializers
+│   │   ├── tests.py       # 14 unit tests
+│   │   ├── urls.py        # Order endpoints
+│   │   └── views.py       # Create, list, detail orders
+│   │
+│   ├── reviews/           # Product reviews & ratings
+│   │   ├── migrations/
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py      # Review model
+│   │   ├── serializers.py # Review serializers
+│   │   ├── signals.py     # Update product rating on review
+│   │   ├── tests.py       # 15 unit tests
+│   │   ├── urls.py        # Review endpoints
+│   │   └── views.py       # Add, update, delete reviews
+│   │
+│   └── wishlist/          # User wishlists
 │       ├── migrations/
 │       ├── __init__.py
 │       ├── admin.py
 │       ├── apps.py
-│       ├── models.py
-│       ├── serializers.py
-│       ├── signals.py
-│       ├── urls.py
-│       └── views.py
-├── infostore/
+│       ├── models.py      # Wishlist model
+│       ├── serializers.py # Wishlist serializers
+│       ├── tests.py       # 15 unit tests
+│       ├── urls.py        # Wishlist endpoints
+│       └── views.py       # Add, remove wishlist items
+│
+├── infostore/             # Project settings
 │   ├── __init__.py
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-├── static/
-├── media/
-├── .env
-├── .gitignore
-├── build.sh
-├── manage.py
-├── render.yaml
-├── requirements.txt
-└── README.md
+│   ├── settings.py        # Django configuration
+│   ├── urls.py            # API v2 routing
+│   ├── wsgi.py
+│   └── asgi.py
+│
+├── static/                # Static files (CSS, JS, images)
+├── media/                 # User-uploaded files
+├── staticfiles/           # Collected static files (production)
+│
+├── .env                   # Environment variables (not in git)
+├── .env.example           # Environment template
+├── .gitignore             # Git ignore rules
+├── build.sh               # Production build script
+├── CHANGELOG.md           # Version history
+├── CONTRIBUTING.md        # Contribution guidelines  
+├── LICENSE                # MIT License
+├── manage.py              # Django management script
+├── pytest.ini             # Pytest configuration
+├── README.md              # This file
+├── render.yaml            # Render deployment config
+└── requirements.txt       # Python dependencies
 ```
+
+## 🧪 Testing
+
+InfoStore API has comprehensive test coverage with **102 unit tests** across all apps.
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest apps
+
+# Run tests for specific app
+pytest apps/accounts
+pytest apps/products
+pytest apps/cart
+pytest apps/orders
+pytest apps/reviews
+pytest apps/wishlist
+
+# Run with coverage
+pytest apps --cov
+
+# Run with verbose output
+pytest apps -v
+```
+
+### Test Coverage
+
+- **accounts**: 21 tests (authentication, registration, profile, password changes)
+- **products**: 17 tests (list, detail, categories, search)
+- **cart**: 20 tests (create, add, update, delete, merge)
+- **orders**: 14 tests (create, list, detail, permissions)
+- **reviews**: 15 tests (add, update, delete, ratings)
+- **wishlist**: 15 tests (add, remove, list, toggle)
+
+All tests cover:
+
+- ✅ Model creation and validation
+- ✅ API endpoint responses
+- ✅ Authentication and permissions
+- ✅ Edge cases and error handling
+
 
 ## 🤝 Contributing
 
